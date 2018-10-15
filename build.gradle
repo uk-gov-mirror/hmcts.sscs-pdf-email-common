@@ -113,6 +113,9 @@ bintray {
 dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.1'
     compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '0.0.60'
+    compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '3.0.0'
+    compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '5.0.0'
+    compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '0.0.60'
 
     compile group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.9.2'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
