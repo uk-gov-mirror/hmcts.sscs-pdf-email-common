@@ -1,27 +1,21 @@
 language: java
-
-branches:
-  only:
-  - master
-
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
 cache:
   directories:
-  - $HOME/.gradle/caches/
-  - $HOME/.gradle/wrapper/
-
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 script:
-- ./gradlew build
-
+- "./gradlew build"
 deploy:
 - provider: script
-  script: ./gradlew bintrayUpload
+  script: "./gradlew bintrayUpload"
   skip_cleanup: true
-
+  on:
+    repo: hmcts/java-logging
+    tags: true
 env:
   global:
-  - secure:
-  - secure:
+  - secure: dt77cAPWRD/JnQLtyqeeS6e/BUmw4gM1uM9tED7ID586TUsomoX3axmyi8Rm4EnClN2FvlkqXiJCLfvNz8omobN9LLBYIHGepu2QvuZEZ81bsBU6qLvqkt72O2LJOS7+Cyc4TL7fdGdO3mKwp5serabYglC5iLLtRd/LDeYYPbpvfbzaY/BmwJSpYHrak2d0cMMQz/WHFVzTPuBenG+QwwPT+SBsV9EeuVrkticSc7eMjQUOMC00WYdjs2mw76dp5bXAF5yD7u/2s/1HOCE5AEmkGwRBvhCIOZKWU8icRUS8ywmKbjuhtdf4xqJqlTrUm/ZClh2x/mAS4gG8Q8piGPY8g0tSqmHdpB5kTpGsNEGC1SCqSBTpx0UUCbDwUHkBsZ2XbrI6//nCFWoJHpbezWE/n2au6tf84KAwyTo/RYToms2eX+tE22ZlSQt5iDXcKMmDJ1Uta2oUN4WHngP807xWiuntdSVhtOPC5IRecTSwaOEBetHJ5jpBt22kNLTii+C5p5D5zhqiRAC0Ye5eVcFqPGl7djn2hb5Vtf+F4X0HsF2AdaIam9ERjX5iMB/hJ+jxuTPDVAYN9/1dlrv1SXUBMC9lOx5XdGmAt4XZk+Dej9FaYBLhZ1XWgNVt6VCmjWGaBwanvsycoH1FnNyl8mfM521m45o0gB/jjKNpjds=
+  - secure: VKxiZcOqLnEseAJ7comg+BR3wg/JF1nPqf79dSF0Za1a9ZiI/0VSTcPbrNH/8zpIjaJJuiqVmEzh7nIkiHpwE/IRlTablGbEupS8V2X30bGO0nKTeDOZ61ne5u8vl6JWhnqoQqvd8mMLrKUqboN7EYUYpilLoiciVLRVfruq3Jhmnyuiztw4EAiJCaJQ2yf37YCM7GJJU8SedHoAcO1sH4Ezzp5IpSexwTZulZk+Rek7BsnKQH3cOsGdCltMxvwY4nJV+1V9854E2QuardkgNv7i1Re7Jx7/dKsp65PLkmbR5M65JbyM7i4I/hZcPMgBu9RK6U+TMlfPYMYI+zOhN6cRSuFnO2sda8HoS3IewyMxlWgngC4scC6Ox1oW/pVdgpf5ABbMqo6+I/3da1eK+47rZ7jt5Pj5Jicrk35h47W6hHXoJoNz1E3WMF5DWrOt5XV9tIRXZVccJurA4PvjP+thuwF2wISaNPfujv9RVVCsGT3p34TGbUq/wO2hqwo7ws7KL4CnlJ/1zSbsWkGuJcWQ+U3be7XJjgyZoG8HRD3cDhy4wiTMVYpwdOQD3MES8gMj3pTp0Q0ijtLH/MqJAPBN5oFocQ7kRw94GBhP+hyugTapfZp/ZQ9FAX4ZcZ+W1CBX1PLWaiCKPrtTWhYBQSnlRvAfe2gxqYBczKBuIq4=
