@@ -13,8 +13,8 @@ deploy:
   script: "./gradlew bintrayUpload"
   skip_cleanup: true
   on:
-    repo: hmcts/java-logging
-    tags: true
+    repo: hmcts/sscs-pdf-robotics-email-common
+    branch: master
 env:
   global:
   - secure: dt77cAPWRD/JnQLtyqeeS6e/BUmw4gM1uM9tED7ID586TUsomoX3axmyi8Rm4EnClN2FvlkqXiJCLfvNz8omobN9LLBYIHGepu2QvuZEZ81bsBU6qLvqkt72O2LJOS7+Cyc4TL7fdGdO3mKwp5serabYglC5iLLtRd/LDeYYPbpvfbzaY/BmwJSpYHrak2d0cMMQz/WHFVzTPuBenG+QwwPT+SBsV9EeuVrkticSc7eMjQUOMC00WYdjs2mw76dp5bXAF5yD7u/2s/1HOCE5AEmkGwRBvhCIOZKWU8icRUS8ywmKbjuhtdf4xqJqlTrUm/ZClh2x/mAS4gG8Q8piGPY8g0tSqmHdpB5kTpGsNEGC1SCqSBTpx0UUCbDwUHkBsZ2XbrI6//nCFWoJHpbezWE/n2au6tf84KAwyTo/RYToms2eX+tE22ZlSQt5iDXcKMmDJ1Uta2oUN4WHngP807xWiuntdSVhtOPC5IRecTSwaOEBetHJ5jpBt22kNLTii+C5p5D5zhqiRAC0Ye5eVcFqPGl7djn2hb5Vtf+F4X0HsF2AdaIam9ERjX5iMB/hJ+jxuTPDVAYN9/1dlrv1SXUBMC9lOx5XdGmAt4XZk+Dej9FaYBLhZ1XWgNVt6VCmjWGaBwanvsycoH1FnNyl8mfM521m45o0gB/jjKNpjds=
