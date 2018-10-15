@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="SbtLocalSettings">
+    <option name="modificationStamps">
+      <map>
+        <entry key="$PROJECT_DIR$/../../rt/evw-caseworker/caseworker" value="1477387921000" />
+        <entry key="$PROJECT_DIR$/../../rt/evw-domain-lib" value="1458639161000" />
+        <entry key="$PROJECT_DIR$/../../rt/evw-flight-details" value="5802853685000" />
+        <entry key="$PROJECT_DIR$/../../rt/evw-integration-service" value="11606956372000" />
+        <entry key="$PROJECT_DIR$/../../rt/evw-schemas" value="4366933055000" />
+        <entry key="$PROJECT_DIR$/../../rt/flight-forecast-service" value="1474882508000" />
+        <entry key="$PROJECT_DIR$/../../rt/global-entry-integration-service" value="8705581300000" />
+        <entry key="$PROJECT_DIR$/../../rt/passport-ocr-service" value="7268444850000" />
+        <entry key="$PROJECT_DIR$/../../rt/registered-traveller-caseworker/caseworker" value="1471594762000" />
+        <entry key="$PROJECT_DIR$/../../rt/registered-traveller-integration-service" value="8705552928000" />
+        <entry key="$PROJECT_DIR$/../../rt/registered-traveller-reconciliation" value="5804167454000" />
+        <entry key="$PROJECT_DIR$/../../rt/rt-schemas" value="1455614219000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-akka-lib" value="4352077448000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-caseworker-domain-lib" value="4352077447000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-caseworker-mongo-lib" value="5811780241000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-domain-core-lib" value="1450709248000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-email-lib" value="1471519803000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-io-lib" value="1461254135000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-mongo-lib" value="4356578710000" />
+        <entry key="$PROJECT_DIR$/../../rt/rtp-test-lib" value="1450692519000" />
+      </map>
+    </option>
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+</project>
