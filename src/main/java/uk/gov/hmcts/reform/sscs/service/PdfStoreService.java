@@ -28,7 +28,7 @@ public class PdfStoreService {
     }
 
     public List<SscsDocument> store(byte[] content, String fileName) {
-        ByteArrayMultipartFile file = new ByteArrayMultipartFile(content, fileName, APPLICATION_PDF);
+        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName).contentType(APPLICATION_PDF).build();
         try {
             UploadResponse upload = evidenceManagementService.upload(singletonList(file));
             String location = upload.getEmbedded().getDocuments().get(0).links.self.href;

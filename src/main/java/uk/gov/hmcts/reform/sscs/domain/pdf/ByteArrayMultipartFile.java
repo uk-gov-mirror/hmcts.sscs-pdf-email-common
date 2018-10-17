@@ -5,19 +5,17 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
+@Data
+@Builder
 public class ByteArrayMultipartFile implements MultipartFile {
     private final byte[] content;
     private final String name;
     private final MediaType contentType;
-
-    public ByteArrayMultipartFile(byte[] content, String name, MediaType contentType) {
-        this.content = content;
-        this.name = name;
-        this.contentType = contentType;
-    }
 
     @Override
     public String getName() {

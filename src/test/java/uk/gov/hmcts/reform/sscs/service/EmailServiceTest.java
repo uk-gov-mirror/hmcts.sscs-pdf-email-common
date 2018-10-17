@@ -55,7 +55,8 @@ public class EmailServiceTest {
 
     @Test
     public void testSendEmailWithNoAttachments() {
-        Email testEmail = new Email(EMAIL_FROM, EMAIL_TO, EMAIL_SUBJECT, EMAIL_MESSAGE, emptyList());
+
+        Email testEmail = Email.builder().from(EMAIL_FROM).to(EMAIL_TO).subject(EMAIL_SUBJECT).message(EMAIL_MESSAGE).attachments(emptyList()).build();
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
         emailService.sendEmail(testEmail);
         verify(javaMailSender).send(mimeMessage);
@@ -96,15 +97,15 @@ public class EmailServiceTest {
             EmailAttachment emailAttachment =
                     EmailAttachment.pdf("hello".getBytes(), "Hello.pdf");
             emailAttachmentList.add(emailAttachment);
-            return new Email(EMAIL_FROM, EMAIL_TO, EMAIL_SUBJECT, EMAIL_MESSAGE, emailAttachmentList);
+            return Email.builder().from(EMAIL_FROM).to(EMAIL_TO).subject(EMAIL_SUBJECT).message(EMAIL_MESSAGE).attachments(emailAttachmentList).build();
         }
 
         static Email getWithToNull() {
-            return new Email(EMAIL_FROM, null, EMAIL_SUBJECT, EMAIL_MESSAGE, emptyList());
+            return Email.builder().from(EMAIL_FROM).to(null).subject(EMAIL_SUBJECT).message(EMAIL_MESSAGE).attachments(emptyList()).build();
         }
 
         static Email getWithSubjectNull() {
-            return new Email(EMAIL_FROM, EMAIL_TO, null, EMAIL_MESSAGE, emptyList());
+            return Email.builder().from(EMAIL_FROM).to(EMAIL_TO).subject(null).message(EMAIL_MESSAGE).attachments(emptyList()).build();
         }
     }
 }
