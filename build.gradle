@@ -7,7 +7,6 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-    id 'org.springframework.boot' version '2.0.5.RELEASE'
 }
 
 def buildNumber = System.getenv("TRAVIS_BUILD_NUMBER") ?: "DEV-SNAPSHOT"
@@ -118,7 +117,9 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '5.0.0'
     compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '0.0.74'
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
+    compile group: 'org.springframework', name: 'spring-context-support', version: '5.1.1.RELEASE'
+    compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+
     compile group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.9.2'
     compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
     compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
