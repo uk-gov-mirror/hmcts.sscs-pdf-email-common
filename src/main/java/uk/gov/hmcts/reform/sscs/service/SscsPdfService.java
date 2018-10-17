@@ -91,6 +91,9 @@ public class SscsPdfService {
         String fileName = emailService.generateUniqueEmailId(caseData.getAppeal().getAppellant()) + ".pdf";
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
+        log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}", caseData.getAppeal().getAppellant().getIdentity().getNino(),
+                caseData.getAppeal().getBenefitType().getCode());
+
         if (caseId == null) {
             log.info("caseId is empty - skipping step to update CCD with PDF");
         } else {
@@ -107,7 +110,7 @@ public class SscsPdfService {
                 newArrayList(pdf(pdf, appellantUniqueId + ".pdf")))
         );
 
-        log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}", appeal.getAppellant().getIdentity().getNino(),
+        log.info("PDF email sent successfully for Nino - {} and benefit type {}", appeal.getAppellant().getIdentity().getNino(),
                 appeal.getBenefitType().getCode());
     }
 
