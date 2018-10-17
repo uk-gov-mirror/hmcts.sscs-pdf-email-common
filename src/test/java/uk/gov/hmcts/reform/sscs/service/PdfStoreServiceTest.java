@@ -28,7 +28,7 @@ public class PdfStoreServiceTest {
 
     public PdfStoreServiceTest() {
         evidenceManagementService = mock(EvidenceManagementService.class);
-        files = singletonList(new ByteArrayMultipartFile(content, filename, APPLICATION_PDF));
+        files = singletonList(ByteArrayMultipartFile.builder().content(content).name(filename).contentType(APPLICATION_PDF).build());
     }
 
     @Test
