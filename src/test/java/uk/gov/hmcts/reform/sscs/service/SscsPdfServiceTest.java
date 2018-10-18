@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
+import uk.gov.hmcts.reform.sscs.ccd.domain.HearingOptions;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.domain.email.SubmitYourAppealEmailTemplate;
@@ -48,6 +49,21 @@ public class SscsPdfServiceTest {
     public void createValidPdfAndSendEmailAndStoreInDocumentStore() {
         byte[] expected = {};
         given(pdfServiceClient.generateFromHtml(any(byte[].class), any())).willReturn(expected);
+
+        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+
+        verify(pdfServiceClient).generateFromHtml(any(), any());
+        verify(emailService).sendEmail(any());
+        verify(pdfStoreService).store(any(), any());
+        verify(ccdService).updateCase(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    public void givenUserDoesNotWantToAttendHearing_createValidPdfAndSendEmailAndStoreInDocumentStore() {
+        byte[] expected = {};
+        given(pdfServiceClient.generateFromHtml(any(byte[].class), any())).willReturn(expected);
+
+        caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("No").build());
 
         service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
 
