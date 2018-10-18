@@ -80,7 +80,7 @@ public class SscsPdfService {
     }
 
     private static String getRepFullName(Representative representative) {
-        if (representative != null) {
+        if (representative != null && representative.getName() != null) {
             return representative.getName().getFullName();
         } else {
             return null;
