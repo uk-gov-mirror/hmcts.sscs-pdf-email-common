@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
+import java.util.Collections;
+
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -84,6 +86,29 @@ public class RoboticsServiceTest {
         byte[] pdf = {};
 
         service.sendCaseToRobotics(appeal, 123L, "AB12 XYZ", pdf);
+
+        verify(roboticsJsonMapper).map(any());
+        verify(roboticsJsonValidator).validate(mappedJson);
+        verify(emailService).sendEmail(any());
+    }
+
+    @Test
+    public void generatingRoboticsSendsAnEmailWithAdditionalEvidence() {
+
+        SscsCaseData appeal = buildCaseData();
+
+        JSONObject mappedJson = mock(JSONObject.class);
+
+        given(roboticsJsonMapper.map(any())).willReturn(mappedJson);
+
+        given(airlookupService.lookupAirVenueNameByPostCode("AB12 XYZ")).willReturn("Bristol");
+
+        given(emailService.generateUniqueEmailId(appeal.getAppeal().getAppellant())).willReturn("Bloggs");
+
+        byte[] pdf = {};
+        byte[] someFile = {};
+
+        service.sendCaseToRobotics(appeal, 123L, "AB12 XYZ", pdf, Collections.singletonMap("Some Evidence.doc", someFile));
 
         verify(roboticsJsonMapper).map(any());
         verify(roboticsJsonValidator).validate(mappedJson);

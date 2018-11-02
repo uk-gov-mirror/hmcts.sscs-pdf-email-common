@@ -1,8 +1,13 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.file;
 import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.json;
 import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.pdf;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -10,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment;
 import uk.gov.hmcts.reform.sscs.domain.email.RoboticsEmailTemplate;
 import uk.gov.hmcts.reform.sscs.domain.robotics.RoboticsWrapper;
 import uk.gov.hmcts.reform.sscs.json.RoboticsJsonMapper;
@@ -41,12 +47,16 @@ public class RoboticsService {
     }
 
     public void sendCaseToRobotics(SscsCaseData caseData, Long caseId, String postcode, byte[] pdf) {
+        sendCaseToRobotics(caseData, caseId, postcode, pdf, Collections.emptyMap());
+    }
+
+    public void sendCaseToRobotics(SscsCaseData caseData, Long caseId, String postcode, byte[] pdf, Map<String, byte[]> additionalEvidence) {
         String venue = airLookupService.lookupAirVenueNameByPostCode(postcode);
 
         JSONObject roboticsJson = createRobotics(RoboticsWrapper.builder().sscsCaseData(caseData)
                 .ccdCaseId(caseId).venueName(venue).evidencePresent(caseData.getEvidencePresent()).build());
 
-        sendJsonByEmail(caseData.getAppeal().getAppellant(), roboticsJson, pdf);
+        sendJsonByEmail(caseData.getAppeal().getAppellant(), roboticsJson, pdf, additionalEvidence);
         log.info("Robotics email sent successfully for Nino - {} and benefit type {}", caseData.getAppeal().getAppellant().getIdentity().getNino(),
                 caseData.getAppeal().getBenefitType().getCode());
     }
@@ -61,13 +71,26 @@ public class RoboticsService {
         return roboticsAppeal;
     }
 
-    private void sendJsonByEmail(Appellant appellant, JSONObject json, byte[] pdf) {
+    private void sendJsonByEmail(Appellant appellant, JSONObject json, byte[] pdf, Map<String, byte[]> additionalEvidence) {
         String appellantUniqueId = emailService.generateUniqueEmailId(appellant);
-        emailService.sendEmail(roboticsEmailTemplate.generateEmail(
+
+        // Add default attachments (json + pdf)
+        List<EmailAttachment> attachments = newArrayList(
+            json(json.toString().getBytes(), appellantUniqueId + ".txt"),
+            pdf(pdf, appellantUniqueId + ".pdf")
+        );
+
+        // Add addition evidence attachments
+        for (String filename : additionalEvidence.keySet()) {
+            attachments.add(file(additionalEvidence.get(filename), filename));
+        }
+
+        emailService.sendEmail(
+            roboticsEmailTemplate.generateEmail(
                 appellantUniqueId,
-                newArrayList(json(json.toString().getBytes(), appellantUniqueId + ".txt"),
-                        pdf(pdf, appellantUniqueId + ".pdf"))
-        ));
+                attachments
+            )
+        );
     }
 
 }

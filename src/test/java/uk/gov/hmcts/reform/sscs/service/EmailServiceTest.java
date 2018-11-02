@@ -54,6 +54,15 @@ public class EmailServiceTest {
     }
 
     @Test
+    public void testSendEmailSuccessWithAttachmentsWithoutContentType() {
+        Email emailData = SampleEmailData.getDefault();
+        emailData.getAttachments().add(EmailAttachment.file("SomeFile".getBytes(), "SomeFile.doc"));
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+        emailService.sendEmail(emailData);
+        verify(javaMailSender).send(mimeMessage);
+    }
+
+    @Test
     public void testSendEmailWithNoAttachments() {
 
         Email testEmail = Email.builder().from(EMAIL_FROM).to(EMAIL_TO).subject(EMAIL_SUBJECT).message(EMAIL_MESSAGE).attachments(emptyList()).build();

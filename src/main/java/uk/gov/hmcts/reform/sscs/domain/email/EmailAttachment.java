@@ -23,9 +23,17 @@ public class EmailAttachment {
 
     public static EmailAttachment json(byte[] content, String fileName) {
         return new EmailAttachment(
-                new ByteArrayResource(content),
-                "application/json",
-                fileName
+            new ByteArrayResource(content),
+            "application/json",
+            fileName
+        );
+    }
+
+    public static EmailAttachment file(byte[] content, String fileName) {
+        return new EmailAttachment(
+            new ByteArrayResource(content),
+            null,
+            fileName
         );
     }
 }
