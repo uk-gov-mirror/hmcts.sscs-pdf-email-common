@@ -11,10 +11,14 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.document.DocumentDownloadClientApi;
 import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
@@ -27,17 +31,19 @@ public class EvidenceManagementServiceTest {
     private AuthTokenGenerator authTokenGenerator;
     @Mock
     private DocumentUploadClientApi documentUploadClientApi;
+    @Mock
+    private DocumentDownloadClientApi documentDownloadClientApi;
 
     private EvidenceManagementService evidenceManagementService;
 
     @Before
     public void setUp() {
         initMocks(this);
-        evidenceManagementService = new EvidenceManagementService(authTokenGenerator, documentUploadClientApi);
+        evidenceManagementService = new EvidenceManagementService(authTokenGenerator, documentUploadClientApi, documentDownloadClientApi);
     }
 
     @Test
-    public void shouldCallUploadDocumentManagementClient() {
+    public void uploadDocumentShouldCallUploadDocumentManagementClient() {
 
         List<MultipartFile> files = Collections.emptyList();
 
@@ -56,7 +62,7 @@ public class EvidenceManagementServiceTest {
     }
 
     @Test(expected = UnsupportedDocumentTypeException.class)
-    public void shouldThrowUnSupportedDocumentTypeExceptionIfAnyGivenDocumentTypeIsNotSupportedByDocumentStore() {
+    public void uploadDocumentShouldThrowUnSupportedDocumentTypeExceptionIfAnyGivenDocumentTypeIsNotSupportedByDocumentStore() {
         List<MultipartFile> files = Collections.emptyList();
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
@@ -68,7 +74,7 @@ public class EvidenceManagementServiceTest {
     }
 
     @Test(expected = Exception.class)
-    public void shouldRethrowAnyExceptionIfItsNotHttpClientErrorException() {
+    public void uploadDocumentShouldRethrowAnyExceptionIfItsNotHttpClientErrorException() {
         List<MultipartFile> files = Collections.emptyList();
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
@@ -76,5 +82,42 @@ public class EvidenceManagementServiceTest {
                 .thenThrow(new Exception("AppealNumber"));
 
         evidenceManagementService.upload(files);
+    }
+
+    @Test
+    public void downloadDocumentShouldDownloadSpecifiedDocument() {
+        ResponseEntity<Resource> mockResponseEntity = mock(ResponseEntity.class);
+        ByteArrayResource stubbedResource = new ByteArrayResource(new byte[] {});
+        when(mockResponseEntity.getBody()).thenReturn(stubbedResource);
+
+        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
+
+        evidenceManagementService.download("somefile.doc");
+
+        verify(mockResponseEntity, times(1)).getBody();
+    }
+
+    @Test(expected = UnsupportedDocumentTypeException.class)
+    public void downloadDocumentShoudlThrowExceptionWhenDocumentNotFound() {
+        ResponseEntity<Resource> mockResponseEntity = mock(ResponseEntity.class);
+        ByteArrayResource stubbedResource = new ByteArrayResource(new byte[] {});
+        when(mockResponseEntity.getBody()).thenReturn(stubbedResource);
+
+        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
+
+        evidenceManagementService.download("somefile.doc");
+    }
+
+    @Test(expected = Exception.class)
+    public void downloadDocumentShouldRethrowAnyExceptionIfItsNotHttpClientErrorException() {
+        List<MultipartFile> files = Collections.emptyList();
+
+        when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString()))
+            .thenThrow(new Exception("AppealNumber"));
+
+        evidenceManagementService.download("somefile.doc");
     }
 }
