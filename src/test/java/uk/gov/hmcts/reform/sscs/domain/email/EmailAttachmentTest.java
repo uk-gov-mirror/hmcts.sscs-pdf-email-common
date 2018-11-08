@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.sscs.domain.email;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmailAttachmentTest {
@@ -33,8 +33,8 @@ public class EmailAttachmentTest {
         assertEquals("application/pdf", actual.getContentType());
         assertNotNull(actual.getData());
     }
-    @Test
 
+    @Test
     public void json() {
         byte[] data = {};
         String filename = "somefile.json";
