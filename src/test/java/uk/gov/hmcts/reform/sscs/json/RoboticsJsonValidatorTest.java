@@ -6,11 +6,11 @@ import org.junit.Test;
 
 public class RoboticsJsonValidatorTest {
 
-    private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator("/schema/sscs-robotics.json");
+    private static final String SCHEMA_SSCS_ROBOTICS_JSON = "/schema/sscs-robotics.json";
+    private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator(SCHEMA_SSCS_ROBOTICS_JSON);
 
     @Test
     public void validateValidRoboticsJson() {
-
         JSONObject validRoboticsJson = createRoboticsJson();
         roboticsJsonValidator.validate(validRoboticsJson);
     }
@@ -51,6 +51,7 @@ public class RoboticsJsonValidatorTest {
         roboticsJson.getJSONObject("appellant").put("postCode", "TN32 6PL");
         roboticsJson.getJSONObject("appellant").put("phoneNumber", "07411222222");
         roboticsJson.getJSONObject("appellant").put("email", "joe@bloggs.com");
+        roboticsJson.getJSONObject("appellant").put("isAppointee", "No");
 
         roboticsJson.put("representative", new JSONObject());
         roboticsJson.getJSONObject("representative").put("firstName", "Harry");
@@ -71,9 +72,10 @@ public class RoboticsJsonValidatorTest {
         roboticsJson.getJSONObject("hearingArrangements").put("accessibleHearingRoom", "No");
         roboticsJson.getJSONObject("hearingArrangements").put("other", "Yes, this...");
         roboticsJson.getJSONObject("hearingArrangements").put(
-            "datesCantAttend",
-            ImmutableList.of("2018-04-04", "2018-04-05", "2018-04-06")
+                "datesCantAttend",
+                ImmutableList.of("2018-04-04", "2018-04-05", "2018-04-06")
         );
+
 
         return roboticsJson;
     }

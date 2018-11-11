@@ -97,7 +97,8 @@
           "type": "string",
           "pattern": "^[0-9\\-+ ]{10,17}$"
         },
-        "email": { "type": "string" }
+        "email": { "type": "string" },
+        "isAppointee": {"$ref": "#/definitions/yesOrNo"}
       },
       "additionalProperties": false,
       "required": [

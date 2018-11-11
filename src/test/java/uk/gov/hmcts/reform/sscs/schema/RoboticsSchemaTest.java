@@ -4,13 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(JUnitParamsRunner.class)
 public class RoboticsSchemaTest {
 
     InputStream inputStream = getClass().getResourceAsStream("/schema/sscs-robotics.json");
@@ -23,6 +27,14 @@ public class RoboticsSchemaTest {
     @Test
     public void givenValidInputAgreedWithAutomationTeam_thenValidateAgainstSchema() throws ValidationException {
         schema.validate(jsonData);
+    }
+
+    @Test
+    @Parameters({"Yes", "No"})
+    public void givenRoboticJsonWithIsAppointeeDetails_shouldValidateSuccessfully(String isAppointeeValue) throws Exception {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), isAppointeeValue, "appellant", "isAppointee");
+        schema.validate(jsonData);
+
     }
 
     @Test(expected = ValidationException.class)
