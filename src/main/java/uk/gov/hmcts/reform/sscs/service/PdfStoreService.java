@@ -42,9 +42,8 @@ public class PdfStoreService {
             SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
 
             return Collections.singletonList(pdfDocument);
-        } catch (RestClientException exc) {
-            log.info("Failed to store pdf document but carrying on [" + fileName + "]");
-            log.debug("Exception from document store", exc);
+        } catch (RestClientException e) {
+            log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
             return Collections.emptyList();
         }
     }

@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 @Service
 public class EvidenceManagementService {
 
-    public static final String DUMMY_OAUTH_2_TOKEN = "oauth2Token";
+    public static final String OAUTH_2_TOKEN = "oauth2Token";
 
     private final AuthTokenGenerator authTokenGenerator;
     private final DocumentUploadClientApi documentUploadClientApi;
@@ -33,7 +33,7 @@ public class EvidenceManagementService {
 
         try {
             return documentUploadClientApi
-                    .upload(DUMMY_OAUTH_2_TOKEN, serviceAuthorization, files);
+                    .upload(OAUTH_2_TOKEN, serviceAuthorization, files);
         } catch (HttpClientErrorException httpClientErrorException) {
             throw new UnsupportedDocumentTypeException(httpClientErrorException);
         }
