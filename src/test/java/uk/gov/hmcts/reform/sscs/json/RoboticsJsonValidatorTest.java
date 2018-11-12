@@ -1,93 +1,143 @@
 package uk.gov.hmcts.reform.sscs.json;
 
-import com.google.common.collect.ImmutableList;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Test;
 
 public class RoboticsJsonValidatorTest {
 
-    private static final String SCHEMA_SSCS_ROBOTICS_JSON = "/schema/sscs-robotics.json";
-    private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator(SCHEMA_SSCS_ROBOTICS_JSON);
+    JSONObject jsonData = new JSONObject(
+            new JSONTokener(getClass().getResourceAsStream("/schema/valid_robotics_agreed.json")));
+
+    private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator(
+            "/schema/sscs-robotics.json");
 
     @Test
-    public void validateValidRoboticsJson() {
-        JSONObject validRoboticsJson = createRoboticsJson();
-        roboticsJsonValidator.validate(validRoboticsJson);
+    public void givenValidInputAgreedWithAutomationTeam_thenValidateAgainstSchema() throws ValidationException {
+        roboticsJsonValidator.validate(jsonData);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void validateInvalidRoboticsJson() {
-
-        JSONObject invalidRoboticsJson = createRoboticsJson();
-        invalidRoboticsJson.remove("caseCode");
-
-        roboticsJsonValidator.validate(invalidRoboticsJson);
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForCaseCode_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "002CC", "caseCode");
+        roboticsJsonValidator.validate(jsonData);
     }
 
-    private JSONObject createRoboticsJson() {
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForPostCode_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "B231ABXXX", "appellant", "postCode");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        JSONObject roboticsJson = new JSONObject();
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForPhoneNumber_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "0798", "appellant", "phoneNumber");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        roboticsJson.put("caseCode", "002DD");
-        roboticsJson.put("caseId", 123L);
-        roboticsJson.put("appellantNino", "AB877533C");
-        roboticsJson.put("appellantPostCode", "Bedford");
-        roboticsJson.put("appealDate", "2018-03-01");
-        roboticsJson.put("mrnDate", "2018-02-01");
-        roboticsJson.put("mrnReasonForBeingLate", "Lost my paperwork");
-        roboticsJson.put("pipNumber", "Liverpool2 SSO");
-        roboticsJson.put("hearingType", "Oral");
-        roboticsJson.put("hearingRequestParty", "Mr Joe Bloggs");
-        roboticsJson.put("evidencePresent", "Yes");
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForCaseCreatedDate_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "2018/06/01", "caseCreatedDate");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        roboticsJson.put("appellant", new JSONObject());
-        roboticsJson.getJSONObject("appellant").put("title", "Mr");
-        roboticsJson.getJSONObject("appellant").put("firstName", "Joe");
-        roboticsJson.getJSONObject("appellant").put("lastName", "Bloggs");
-        roboticsJson.getJSONObject("appellant").put("addressLine1", "123 Hairy Lane");
-        roboticsJson.getJSONObject("appellant").put("addressLine2", "Off Hairy Park");
-        roboticsJson.getJSONObject("appellant").put("townOrCity", "Hairyfield");
-        roboticsJson.getJSONObject("appellant").put("county", "Kent");
-        roboticsJson.getJSONObject("appellant").put("postCode", "TN32 6PL");
-        roboticsJson.getJSONObject("appellant").put("phoneNumber", "07411222222");
-        roboticsJson.getJSONObject("appellant").put("email", "joe@bloggs.com");
-        roboticsJson.getJSONObject("appellant").put("dob", "2018-08-12");
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForMrnDate_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "2018/06/02", "mrnDate");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        roboticsJson.put("appointee", new JSONObject());
-        roboticsJson.getJSONObject("appointee").put("dob", "2018-08-12");
-        roboticsJson.getJSONObject("appointee").put("title", "Mr");
-        roboticsJson.getJSONObject("appointee").put("firstName", "Joe");
-        roboticsJson.getJSONObject("appointee").put("lastName", "Bloggs");
-        roboticsJson.getJSONObject("appointee").put("addressLine1", "123 Hairy Lane");
-        roboticsJson.getJSONObject("appointee").put("townOrCity", "Hairyfield");
-        roboticsJson.getJSONObject("appointee").put("county", "Kent");
-        roboticsJson.getJSONObject("appointee").put("postCode", "TN32 6PL");
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForAppealDate_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "2018/06/03", "appealDate");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        roboticsJson.put("representative", new JSONObject());
-        roboticsJson.getJSONObject("representative").put("firstName", "Harry");
-        roboticsJson.getJSONObject("representative").put("lastName", "Potter");
-        roboticsJson.getJSONObject("representative").put("organisation", "HP Ltd");
-        roboticsJson.getJSONObject("representative").put("addressLine1", "123 Hairy Lane");
-        roboticsJson.getJSONObject("representative").put("addressLine2", "Off Hairy Park");
-        roboticsJson.getJSONObject("representative").put("townOrCity", "Town");
-        roboticsJson.getJSONObject("representative").put("county", "County");
-        roboticsJson.getJSONObject("representative").put("postCode", "CM14 4LQ");
-        roboticsJson.getJSONObject("representative").put("phoneNumber", "07411999999");
-        roboticsJson.getJSONObject("representative").put("email", "harry.potter@wizards.com");
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForHearingType_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Computer", "hearingType");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        roboticsJson.put("hearingArrangements", new JSONObject());
-        roboticsJson.getJSONObject("hearingArrangements").put("languageInterpreter", "Yes");
-        roboticsJson.getJSONObject("hearingArrangements").put("signLanguageInterpreter", "Yes");
-        roboticsJson.getJSONObject("hearingArrangements").put("hearingLoop", "Yes");
-        roboticsJson.getJSONObject("hearingArrangements").put("accessibleHearingRoom", "No");
-        roboticsJson.getJSONObject("hearingArrangements").put("other", "Yes, this...");
-        roboticsJson.getJSONObject("hearingArrangements").put(
-                "datesCantAttend",
-                ImmutableList.of("2018-04-04", "2018-04-05", "2018-04-06")
-        );
+    @Test(expected = ValidationException.class)
+    public void givenOralInputForLanguageInterpreterWithNoHearingRequestParty_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData =  updateEmbeddedProperty(jsonData.toString(), "Oral", "hearingType");
+        jsonData = removeProperty(jsonData.toString(), "hearingRequestParty");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
+    @Test
+    public void givenPaperInputForLanguageInterpreterWithNoHearingRequestParty_doesNotThrowExceptionWhenValidatingAgainstSchema() throws IOException {
+        jsonData =  updateEmbeddedProperty(jsonData.toString(), "Paper", "hearingType");
+        jsonData = removeProperty(jsonData.toString(), "hearingRequestParty");
+        roboticsJsonValidator.validate(jsonData);
+    }
 
-        return roboticsJson;
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForWantsToAttendHearing_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Bla", "wantsToAttendHearing");
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForHearingLoop_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Bla", "hearingArrangements", "hearingLoop");
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForAccessibleHearingRoom_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Bla", "hearingArrangements", "accessibleHearingRoom");
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForDisabilityAccess_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Bla", "hearingArrangements", "disabilityAccess");
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void givenInvalidInputForHearingDatesCantAttend_throwExceptionWhenValidatingAgainstSchema() throws ValidationException {
+        jsonData = new JSONObject(jsonData.toString().replace("2018-08-12", "2018/08/12"));
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    private static JSONObject updateEmbeddedProperty(String json, String value, String... keys) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map map = objectMapper.readValue(json, Map.class);
+
+        Map t = map;
+        for (int i = 0; i < keys.length - 1; i++) {
+            t = (Map) t.get(keys[i]);
+        }
+
+        t.put(keys[keys.length - 1], value);
+
+        JSONObject jsonObject = new JSONObject(objectMapper.writeValueAsString(map));
+
+        return jsonObject;
+    }
+
+    private static JSONObject removeProperty(String json, String key) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map map = objectMapper.readValue(json, Map.class);
+
+        map.remove(key);
+
+        String jsonString = objectMapper.writeValueAsString(map);
+        JSONObject jsonObject = new JSONObject(jsonString);
+
+        return jsonObject;
     }
 
 }
