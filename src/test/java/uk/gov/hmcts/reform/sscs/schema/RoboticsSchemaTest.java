@@ -30,19 +30,6 @@ public class RoboticsSchemaTest {
     }
 
     @Test
-    @Parameters({"Yes", "No"})
-    public void givenRoboticJsonWithIsAppointeeDetails_shouldValidateSuccessfully(String isAppointeeValue) throws Exception {
-        jsonData = updateEmbeddedProperty(jsonData.toString(), isAppointeeValue, "appellant", "isAppointee");
-        schema.validate(jsonData);
-    }
-
-    @Test
-    public void givenRoboticJsonWithNoIsAppointee_shouldValidateSuccessfully() {
-        jsonData.getJSONObject("appellant").remove("isAppointee");
-        schema.validate(jsonData);
-    }
-
-    @Test
     @Parameters({"appellant", "appointee"})
     public void givenRoboticJsonWithDobForAppellantAndAppointee_shouldValidateSuccessfully(String person) throws IOException {
         jsonData = updateEmbeddedProperty(jsonData.toString(), "2018-08-12", person, "dob");

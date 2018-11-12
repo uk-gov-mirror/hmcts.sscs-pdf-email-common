@@ -51,7 +51,6 @@ public class RoboticsJsonValidatorTest {
         roboticsJson.getJSONObject("appellant").put("postCode", "TN32 6PL");
         roboticsJson.getJSONObject("appellant").put("phoneNumber", "07411222222");
         roboticsJson.getJSONObject("appellant").put("email", "joe@bloggs.com");
-        roboticsJson.getJSONObject("appellant").put("isAppointee", "No");
         roboticsJson.getJSONObject("appellant").put("dob", "2018-08-12");
 
         roboticsJson.put("appointee", new JSONObject());
