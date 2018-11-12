@@ -98,7 +98,8 @@
           "pattern": "^[0-9\\-+ ]{10,17}$"
         },
         "email": { "type": "string" },
-        "isAppointee": {"$ref": "#/definitions/yesOrNo"}
+        "isAppointee": {"$ref": "#/definitions/yesOrNo"},
+        "dob": {"$ref": "#/definitions/dateType"}
       },
       "additionalProperties": false,
       "required": [

@@ -34,7 +34,26 @@ public class RoboticsSchemaTest {
     public void givenRoboticJsonWithIsAppointeeDetails_shouldValidateSuccessfully(String isAppointeeValue) throws Exception {
         jsonData = updateEmbeddedProperty(jsonData.toString(), isAppointeeValue, "appellant", "isAppointee");
         schema.validate(jsonData);
+    }
 
+    @Test
+    public void givenRoboticJsonWithNoIsAppointee_shouldValidateSuccessfully() {
+        jsonData.getJSONObject("appellant").remove("isAppointee");
+        schema.validate(jsonData);
+    }
+
+    @Test
+    @Parameters({"appellant", "appointee"})
+    public void givenRoboticJsonWithDobForAppellantAndAppointee_shouldValidateSuccessfully(String person) throws IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "2018-08-12", person, "dob");
+        schema.validate(jsonData);
+    }
+
+    @Test
+    public void givenRoboticJsonWithNoDobForAppellantOrAppointee_shouldValidateSuccessfully() {
+        jsonData.getJSONObject("appellant").remove("dob");
+        jsonData.getJSONObject("appointee").remove("dob");
+        schema.validate(jsonData);
     }
 
     @Test(expected = ValidationException.class)
@@ -81,14 +100,14 @@ public class RoboticsSchemaTest {
 
     @Test(expected = ValidationException.class)
     public void givenOralInputForLanguageInterpreterWithNoHearingRequestParty_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
-        jsonData =  updateEmbeddedProperty(jsonData.toString(), "Oral", "hearingType");
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Oral", "hearingType");
         jsonData = removeProperty(jsonData.toString(), "hearingRequestParty");
         schema.validate(jsonData);
     }
 
     @Test
     public void givenPaperInputForLanguageInterpreterWithNoHearingRequestParty_doesNotThrowExceptionWhenValidatingAgainstSchema() throws IOException {
-        jsonData =  updateEmbeddedProperty(jsonData.toString(), "Paper", "hearingType");
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Paper", "hearingType");
         jsonData = removeProperty(jsonData.toString(), "hearingRequestParty");
         schema.validate(jsonData);
     }

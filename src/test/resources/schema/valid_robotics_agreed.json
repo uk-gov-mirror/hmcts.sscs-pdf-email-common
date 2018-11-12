@@ -11,7 +11,8 @@
     "postCode": "CM12 0HN",
     "title": "Mr",
     "townOrCity": "Perferendis nemo id velit dolore qui officia",
-    "isAppointee": "No"
+    "isAppointee": "No",
+    "dob": "2018-08-12"
   },
   "appellantNino": "JT012020B",
   "appellantPostCode": "Bedford",
@@ -58,6 +59,7 @@
     "county": "Yorkshire",
     "postCode": "EH12 8PL",
     "phoneNumber": "07322939293",
-    "email": "arya_stark@email.com"
-  }  
+    "email": "arya_stark@email.com",
+    "dob": "2018-08-12"
+  }
 }
