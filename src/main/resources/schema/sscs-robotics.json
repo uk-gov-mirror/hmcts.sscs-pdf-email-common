@@ -98,7 +98,8 @@
           "pattern": "^[0-9\\-+ ]{10,17}$"
         },
         "email": { "type": "string" },
-        "dob": {"$ref": "#/definitions/dateType"}
+        "dob": {"$ref": "#/definitions/dateType"},
+        "sameAddressAsAppellant": {"$ref": "#/definitions/yesOrNo"}
       },
       "additionalProperties": false,
       "required": [
