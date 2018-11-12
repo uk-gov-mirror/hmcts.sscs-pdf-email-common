@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -19,7 +20,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.document.DocumentDownloadClientApi;
+import uk.gov.hmcts.reform.document.DocumentMetadataDownloadClientApi;
 import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
+import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 
@@ -32,6 +35,8 @@ public class EvidenceManagementServiceTest {
     @Mock
     private DocumentUploadClientApi documentUploadClientApi;
     @Mock
+    private DocumentMetadataDownloadClientApi documentMetadataDownloadClientApi;
+    @Mock
     private DocumentDownloadClientApi documentDownloadClientApi;
 
     private EvidenceManagementService evidenceManagementService;
@@ -39,7 +44,7 @@ public class EvidenceManagementServiceTest {
     @Before
     public void setUp() {
         initMocks(this);
-        evidenceManagementService = new EvidenceManagementService(authTokenGenerator, documentUploadClientApi, documentDownloadClientApi);
+        evidenceManagementService = new EvidenceManagementService(authTokenGenerator, documentUploadClientApi, documentDownloadClientApi, documentMetadataDownloadClientApi);
     }
 
     @Test
@@ -90,10 +95,19 @@ public class EvidenceManagementServiceTest {
         ByteArrayResource stubbedResource = new ByteArrayResource(new byte[] {});
         when(mockResponseEntity.getBody()).thenReturn(stubbedResource);
 
+
+        Document stubbedDocument = new Document();
+        Document.Link stubbedLink = new Document.Link();
+        stubbedLink.href = "http://localhost:4506/documents/eb8cbfaa-37c3-4644-aa77-b9a2e2c72332";
+        Document.Links stubbedLinks = new Document.Links();
+        stubbedLinks.binary = stubbedLink;
+        stubbedDocument.links = stubbedLinks;
+
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(documentMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
 
-        evidenceManagementService.download("somefile.doc");
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
 
         verify(mockResponseEntity, times(1)).getBody();
     }
@@ -104,20 +118,36 @@ public class EvidenceManagementServiceTest {
         ByteArrayResource stubbedResource = new ByteArrayResource(new byte[] {});
         when(mockResponseEntity.getBody()).thenReturn(stubbedResource);
 
+        Document stubbedDocument = new Document();
+        Document.Link stubbedLink = new Document.Link();
+        stubbedLink.href = "http://localhost:4506/documents/eb8cbfaa-37c3-4644-aa77-b9a2e2c72332";
+        Document.Links stubbedLinks = new Document.Links();
+        stubbedLinks.binary = stubbedLink;
+        stubbedDocument.links = stubbedLinks;
+
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(documentMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
-        evidenceManagementService.download("somefile.doc");
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
     }
 
     @Test(expected = Exception.class)
     public void downloadDocumentShouldRethrowAnyExceptionIfItsNotHttpClientErrorException() {
         List<MultipartFile> files = Collections.emptyList();
 
+        Document stubbedDocument = new Document();
+        Document.Link stubbedLink = new Document.Link();
+        stubbedLink.href = "http://localhost:4506/documents/eb8cbfaa-37c3-4644-aa77-b9a2e2c72332";
+        Document.Links stubbedLinks = new Document.Links();
+        stubbedLinks.binary = stubbedLink;
+        stubbedDocument.links = stubbedLinks;
+
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
+        when(documentMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString()))
             .thenThrow(new Exception("AppealNumber"));
 
-        evidenceManagementService.download("somefile.doc");
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
     }
 }
