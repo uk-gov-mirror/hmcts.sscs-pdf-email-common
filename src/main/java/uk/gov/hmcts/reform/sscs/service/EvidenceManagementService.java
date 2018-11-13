@@ -36,7 +36,7 @@ public class EvidenceManagementService {
         try {
             return documentUploadClientApi.upload(OAUTH_2_TOKEN, serviceAuthorization, files);
         } catch (HttpClientErrorException httpClientErrorException) {
-            log.error("Doc Store service failed to upload documents...");
+            log.error("Doc Store service failed to upload documents...", httpClientErrorException);
             if (null != files) {
                 logFiles(files);
             }
