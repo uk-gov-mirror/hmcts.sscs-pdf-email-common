@@ -10,7 +10,7 @@ plugins {
 }
 
 group 'uk.gov.hmcts.reform'
-version '0.0.83'
+version '0.0.84'
 
 sourceCompatibility = 1.8
 
@@ -122,5 +122,5 @@ dependencies {
 
     testCompile group: 'junit', name: 'junit', version: 4.12
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.2.7'
-
+    testCompile 'pl.pragmatists:JUnitParams:1.1.1'
 }

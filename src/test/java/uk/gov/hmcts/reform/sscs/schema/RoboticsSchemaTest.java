@@ -4,13 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(JUnitParamsRunner.class)
 public class RoboticsSchemaTest {
 
     InputStream inputStream = getClass().getResourceAsStream("/schema/sscs-robotics.json");
@@ -22,6 +26,20 @@ public class RoboticsSchemaTest {
 
     @Test
     public void givenValidInputAgreedWithAutomationTeam_thenValidateAgainstSchema() throws ValidationException {
+        schema.validate(jsonData);
+    }
+
+    @Test
+    @Parameters({"appellant", "appointee"})
+    public void givenRoboticJsonWithDobForAppellantAndAppointee_shouldValidateSuccessfully(String person) throws IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "2018-08-12", person, "dob");
+        schema.validate(jsonData);
+    }
+
+    @Test
+    public void givenRoboticJsonWithNoDobForAppellantOrAppointee_shouldValidateSuccessfully() {
+        jsonData.getJSONObject("appellant").remove("dob");
+        jsonData.getJSONObject("appointee").remove("dob");
         schema.validate(jsonData);
     }
 
@@ -69,14 +87,14 @@ public class RoboticsSchemaTest {
 
     @Test(expected = ValidationException.class)
     public void givenOralInputForLanguageInterpreterWithNoHearingRequestParty_throwExceptionWhenValidatingAgainstSchema() throws ValidationException, IOException {
-        jsonData =  updateEmbeddedProperty(jsonData.toString(), "Oral", "hearingType");
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Oral", "hearingType");
         jsonData = removeProperty(jsonData.toString(), "hearingRequestParty");
         schema.validate(jsonData);
     }
 
     @Test
     public void givenPaperInputForLanguageInterpreterWithNoHearingRequestParty_doesNotThrowExceptionWhenValidatingAgainstSchema() throws IOException {
-        jsonData =  updateEmbeddedProperty(jsonData.toString(), "Paper", "hearingType");
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "Paper", "hearingType");
         jsonData = removeProperty(jsonData.toString(), "hearingRequestParty");
         schema.validate(jsonData);
     }

@@ -3,9 +3,13 @@ package uk.gov.hmcts.reform.sscs.service;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -57,7 +61,8 @@ public class EvidenceManagementServiceTest {
 
     @Test(expected = UnsupportedDocumentTypeException.class)
     public void shouldThrowUnSupportedDocumentTypeExceptionIfAnyGivenDocumentTypeIsNotSupportedByDocumentStore() {
-        List<MultipartFile> files = Collections.emptyList();
+
+        List<MultipartFile> files = mockMultipartFiles();
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
         when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), eq(files)))
@@ -65,6 +70,16 @@ public class EvidenceManagementServiceTest {
 
         evidenceManagementService.upload(files);
 
+    }
+
+    private List<MultipartFile> mockMultipartFiles() {
+        MultipartFile value = mock(MultipartFile.class);
+        when(value.getName()).thenReturn("testFile.txt");
+        when(value.getOriginalFilename()).thenReturn("OriginalTestFile.txt");
+
+        List<MultipartFile> files = new ArrayList<>();
+        files.add(value);
+        return files;
     }
 
     @Test(expected = Exception.class)
