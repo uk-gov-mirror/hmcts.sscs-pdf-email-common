@@ -19,11 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.document.DocumentDownloadClientApi;
-import uk.gov.hmcts.reform.document.DocumentMetadataDownloadClientApi;
 import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
+import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
+import uk.gov.hmcts.reform.sscs.document.EvidenceMetadataDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 
 public class EvidenceManagementServiceTest {
@@ -35,16 +35,16 @@ public class EvidenceManagementServiceTest {
     @Mock
     private DocumentUploadClientApi documentUploadClientApi;
     @Mock
-    private DocumentMetadataDownloadClientApi documentMetadataDownloadClientApi;
+    private EvidenceMetadataDownloadClientApi evidenceMetadataDownloadClientApi;
     @Mock
-    private DocumentDownloadClientApi documentDownloadClientApi;
+    private EvidenceDownloadClientApi evidenceDownloadClientApi;
 
     private EvidenceManagementService evidenceManagementService;
 
     @Before
     public void setUp() {
         initMocks(this);
-        evidenceManagementService = new EvidenceManagementService(authTokenGenerator, documentUploadClientApi, documentDownloadClientApi, documentMetadataDownloadClientApi);
+        evidenceManagementService = new EvidenceManagementService(authTokenGenerator, documentUploadClientApi, evidenceDownloadClientApi, evidenceMetadataDownloadClientApi);
     }
 
     @Test
@@ -55,13 +55,13 @@ public class EvidenceManagementServiceTest {
         UploadResponse expectedUploadResponse = mock(UploadResponse.class);
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), eq(files)))
+        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
                 .thenReturn(expectedUploadResponse);
 
         UploadResponse actualUploadedResponse = evidenceManagementService.upload(files);
 
         verify(documentUploadClientApi, times(1))
-                .upload(any(), eq(SERVICE_AUTHORIZATION), eq(files));
+                .upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files));
 
         assertEquals(actualUploadedResponse, expectedUploadResponse);
     }
@@ -71,7 +71,7 @@ public class EvidenceManagementServiceTest {
         List<MultipartFile> files = Collections.emptyList();
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), eq(files)))
+        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
         evidenceManagementService.upload(files);
@@ -83,7 +83,7 @@ public class EvidenceManagementServiceTest {
         List<MultipartFile> files = Collections.emptyList();
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), eq(files)))
+        when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
                 .thenThrow(new Exception("AppealNumber"));
 
         evidenceManagementService.upload(files);
@@ -104,8 +104,8 @@ public class EvidenceManagementServiceTest {
         stubbedDocument.links = stubbedLinks;
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
 
         evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
 
@@ -126,8 +126,8 @@ public class EvidenceManagementServiceTest {
         stubbedDocument.links = stubbedLinks;
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
         evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
     }
@@ -144,8 +144,8 @@ public class EvidenceManagementServiceTest {
         stubbedDocument.links = stubbedLinks;
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(documentMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(documentDownloadClientApi.downloadBinary(anyString(), anyString(), anyString()))
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString()))
             .thenThrow(new Exception("AppealNumber"));
 
         evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));

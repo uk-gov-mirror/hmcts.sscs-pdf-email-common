@@ -10,7 +10,7 @@ plugins {
 }
 
 group 'uk.gov.hmcts.reform'
-version '0.0.85-SSCS-4290-4'
+version '0.0.85-CANDIDATE'
 
 sourceCompatibility = 1.8
 
@@ -105,7 +105,7 @@ bintray {
 
 dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.1'
-    compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '3.0.0'
+    compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '4.0.1'
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '5.0.0'
     compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '0.0.90'
 

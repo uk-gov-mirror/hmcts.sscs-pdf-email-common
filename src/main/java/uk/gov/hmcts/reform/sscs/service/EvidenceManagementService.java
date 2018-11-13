@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.document.DocumentDownloadClientApi;
-import uk.gov.hmcts.reform.document.DocumentMetadataDownloadClientApi;
 import uk.gov.hmcts.reform.document.DocumentUploadClientApi;
 import uk.gov.hmcts.reform.document.domain.Document;
 import uk.gov.hmcts.reform.document.domain.UploadResponse;
+import uk.gov.hmcts.reform.sscs.document.EvidenceDownloadClientApi;
+import uk.gov.hmcts.reform.sscs.document.EvidenceMetadataDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 
 @Service
@@ -22,22 +22,24 @@ public class EvidenceManagementService {
 
     public static final String S2S_TOKEN = "oauth2Token";
 
+    public static final String DS_USER_ID = "sscs";
+
     private final AuthTokenGenerator authTokenGenerator;
     private final DocumentUploadClientApi documentUploadClientApi;
-    private final DocumentDownloadClientApi documentDownloadClientApi;
-    private final DocumentMetadataDownloadClientApi documentMetadataDownloadClient;
+    private final EvidenceDownloadClientApi evidenceDownloadClientApi;
+    private final EvidenceMetadataDownloadClientApi evidenceMetadataDownloadClient;
 
     @Autowired
     public EvidenceManagementService(
         AuthTokenGenerator authTokenGenerator,
         DocumentUploadClientApi documentUploadClientApi,
-        DocumentDownloadClientApi documentDownloadClientApi,
-        DocumentMetadataDownloadClientApi documentMetadataDownloadClient
+        EvidenceDownloadClientApi evidenceDownloadClientApi,
+        EvidenceMetadataDownloadClientApi evidenceMetadataDownloadClient
     ) {
         this.authTokenGenerator = authTokenGenerator;
         this.documentUploadClientApi = documentUploadClientApi;
-        this.documentDownloadClientApi = documentDownloadClientApi;
-        this.documentMetadataDownloadClient = documentMetadataDownloadClient;
+        this.evidenceDownloadClientApi = evidenceDownloadClientApi;
+        this.evidenceMetadataDownloadClient = evidenceMetadataDownloadClient;
     }
 
     public UploadResponse upload(List<MultipartFile> files) {
@@ -46,7 +48,7 @@ public class EvidenceManagementService {
 
         try {
             return documentUploadClientApi
-                    .upload(S2S_TOKEN, serviceAuthorization, files);
+                    .upload(S2S_TOKEN, serviceAuthorization, DS_USER_ID, files);
         } catch (HttpClientErrorException httpClientErrorException) {
             throw new UnsupportedDocumentTypeException(httpClientErrorException);
         }
@@ -56,15 +58,17 @@ public class EvidenceManagementService {
         String serviceAuthorization = authTokenGenerator.generate();
 
         try {
-            Document documentMetadata = documentMetadataDownloadClient.getDocumentMetadata(
+            Document documentMetadata = evidenceMetadataDownloadClient.getDocumentMetadata(
                 S2S_TOKEN,
                 serviceAuthorization,
+                DS_USER_ID,
                 documentSelf.getPath()
             );
 
-            ResponseEntity<Resource> responseEntity =  documentDownloadClientApi.downloadBinary(
+            ResponseEntity<Resource> responseEntity =  evidenceDownloadClientApi.downloadBinary(
                 S2S_TOKEN,
                 serviceAuthorization,
+                DS_USER_ID,
                 URI.create(documentMetadata.links.binary.href).getPath()
             );
 
