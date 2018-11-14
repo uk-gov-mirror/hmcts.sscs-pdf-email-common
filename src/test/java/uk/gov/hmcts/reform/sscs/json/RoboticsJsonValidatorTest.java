@@ -26,6 +26,20 @@ public class RoboticsJsonValidatorTest {
     }
 
     @Test
+    @Parameters({"appellant", "appointee"})
+    public void givenRoboticJsonWithDobForAppellantAndAppointee_shouldValidateSuccessfully(String person) throws IOException {
+        jsonData = updateEmbeddedProperty(jsonData.toString(), "2018-08-12", person, "dob");
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    @Test
+    public void givenRoboticJsonWithNoDobForAppellantOrAppointee_shouldValidateSuccessfully() {
+        jsonData.getJSONObject("appellant").remove("dob");
+        jsonData.getJSONObject("appointee").remove("dob");
+        roboticsJsonValidator.validate(jsonData);
+    }
+
+    @Test
     @Parameters({"Yes", "No"})
     public void givenJsonWithTheSameAddressAsAppellantProperty_shouldValidateSuccessfully(String value) {
         jsonData.getJSONObject("appointee").put("sameAddressAsAppellant", value);
