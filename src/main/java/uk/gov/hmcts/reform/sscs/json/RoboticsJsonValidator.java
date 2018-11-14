@@ -16,9 +16,7 @@ public class RoboticsJsonValidator {
     private Schema schema = null;
 
     @Autowired
-    public RoboticsJsonValidator(
-        @Value("${robotics.schema.resource.location}") String schemaResourceLocation
-    ) {
+    public RoboticsJsonValidator(@Value("${robotics.schema.resource.location}") String schemaResourceLocation) {
         this.schemaResourceLocation = schemaResourceLocation;
     }
 

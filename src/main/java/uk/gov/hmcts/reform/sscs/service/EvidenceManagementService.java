@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import java.net.URI;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -18,6 +19,7 @@ import uk.gov.hmcts.reform.sscs.document.EvidenceMetadataDownloadClientApi;
 import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 
 @Service
+@Slf4j
 public class EvidenceManagementService {
 
     public static final String S2S_TOKEN = "oauth2Token";
@@ -48,8 +50,12 @@ public class EvidenceManagementService {
 
         try {
             return documentUploadClientApi
-                    .upload(S2S_TOKEN, serviceAuthorization, DS_USER_ID, files);
+                .upload(S2S_TOKEN, serviceAuthorization, DS_USER_ID, files);
         } catch (HttpClientErrorException httpClientErrorException) {
+            log.error("Doc Store service failed to upload documents...", httpClientErrorException);
+            if (null != files) {
+                logFiles(files);
+            }
             throw new UnsupportedDocumentTypeException(httpClientErrorException);
         }
     }
@@ -78,4 +84,12 @@ public class EvidenceManagementService {
             throw new UnsupportedDocumentTypeException(httpClientErrorException);
         }
     }
+
+    private void logFiles(List<MultipartFile> files) {
+        files.forEach(file -> {
+            log.info("Name: {}", file.getName());
+            log.info("OriginalName {}", file.getOriginalFilename());
+        });
+    }
+
 }

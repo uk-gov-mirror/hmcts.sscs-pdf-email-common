@@ -6,11 +6,11 @@ import org.junit.Test;
 
 public class RoboticsJsonValidatorTest {
 
-    private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator("/schema/sscs-robotics.json");
+    private static final String SCHEMA_SSCS_ROBOTICS_JSON = "/schema/sscs-robotics.json";
+    private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator(SCHEMA_SSCS_ROBOTICS_JSON);
 
     @Test
     public void validateValidRoboticsJson() {
-
         JSONObject validRoboticsJson = createRoboticsJson();
         roboticsJsonValidator.validate(validRoboticsJson);
     }
@@ -51,6 +51,17 @@ public class RoboticsJsonValidatorTest {
         roboticsJson.getJSONObject("appellant").put("postCode", "TN32 6PL");
         roboticsJson.getJSONObject("appellant").put("phoneNumber", "07411222222");
         roboticsJson.getJSONObject("appellant").put("email", "joe@bloggs.com");
+        roboticsJson.getJSONObject("appellant").put("dob", "2018-08-12");
+
+        roboticsJson.put("appointee", new JSONObject());
+        roboticsJson.getJSONObject("appointee").put("dob", "2018-08-12");
+        roboticsJson.getJSONObject("appointee").put("title", "Mr");
+        roboticsJson.getJSONObject("appointee").put("firstName", "Joe");
+        roboticsJson.getJSONObject("appointee").put("lastName", "Bloggs");
+        roboticsJson.getJSONObject("appointee").put("addressLine1", "123 Hairy Lane");
+        roboticsJson.getJSONObject("appointee").put("townOrCity", "Hairyfield");
+        roboticsJson.getJSONObject("appointee").put("county", "Kent");
+        roboticsJson.getJSONObject("appointee").put("postCode", "TN32 6PL");
 
         roboticsJson.put("representative", new JSONObject());
         roboticsJson.getJSONObject("representative").put("firstName", "Harry");
@@ -71,9 +82,10 @@ public class RoboticsJsonValidatorTest {
         roboticsJson.getJSONObject("hearingArrangements").put("accessibleHearingRoom", "No");
         roboticsJson.getJSONObject("hearingArrangements").put("other", "Yes, this...");
         roboticsJson.getJSONObject("hearingArrangements").put(
-            "datesCantAttend",
-            ImmutableList.of("2018-04-04", "2018-04-05", "2018-04-06")
+                "datesCantAttend",
+                ImmutableList.of("2018-04-04", "2018-04-05", "2018-04-06")
         );
+
 
         return roboticsJson;
     }
