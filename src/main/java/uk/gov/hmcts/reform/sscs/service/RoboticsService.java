@@ -8,7 +8,6 @@ import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.pdf;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +32,11 @@ public class RoboticsService {
 
     @Autowired
     public RoboticsService(
-        AirLookupService airLookupService,
-        EmailService emailService,
-        RoboticsJsonMapper roboticsJsonMapper,
-        RoboticsJsonValidator roboticsJsonValidator,
-        RoboticsEmailTemplate roboticsEmailTemplate
+            AirLookupService airLookupService,
+            EmailService emailService,
+            RoboticsJsonMapper roboticsJsonMapper,
+            RoboticsJsonValidator roboticsJsonValidator,
+            RoboticsEmailTemplate roboticsEmailTemplate
     ) {
         this.airLookupService = airLookupService;
         this.emailService = emailService;
@@ -64,7 +63,7 @@ public class RoboticsService {
     public JSONObject createRobotics(RoboticsWrapper appeal) {
 
         JSONObject roboticsAppeal =
-            roboticsJsonMapper.map(appeal);
+                roboticsJsonMapper.map(appeal);
 
         roboticsJsonValidator.validate(roboticsAppeal);
 
@@ -73,23 +72,26 @@ public class RoboticsService {
 
     private void sendJsonByEmail(Appellant appellant, JSONObject json, byte[] pdf, Map<String, byte[]> additionalEvidence) {
         String appellantUniqueId = emailService.generateUniqueEmailId(appellant);
-
-        // Add default attachments (json + pdf)
-        List<EmailAttachment> attachments = newArrayList(
-            json(json.toString().getBytes(), appellantUniqueId + ".txt"),
-            pdf(pdf, appellantUniqueId + ".pdf")
+        List<EmailAttachment> attachments = addDefaultAttachment(json, pdf, appellantUniqueId);
+        addAdditionEvidenceAttachments(additionalEvidence, attachments);
+        emailService.sendEmail(
+                roboticsEmailTemplate.generateEmail(
+                        appellantUniqueId,
+                        attachments
+                )
         );
+    }
 
-        // Add addition evidence attachments
+    private void addAdditionEvidenceAttachments(Map<String, byte[]> additionalEvidence, List<EmailAttachment> attachments) {
         for (String filename : additionalEvidence.keySet()) {
             attachments.add(file(additionalEvidence.get(filename), filename));
         }
+    }
 
-        emailService.sendEmail(
-            roboticsEmailTemplate.generateEmail(
-                appellantUniqueId,
-                attachments
-            )
+    private List<EmailAttachment> addDefaultAttachment(JSONObject json, byte[] pdf, String appellantUniqueId) {
+        return newArrayList(
+                json(json.toString().getBytes(), appellantUniqueId + ".txt"),
+                pdf(pdf, appellantUniqueId + ".pdf")
         );
     }
 
