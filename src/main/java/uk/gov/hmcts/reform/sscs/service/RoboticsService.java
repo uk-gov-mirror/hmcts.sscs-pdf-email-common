@@ -73,7 +73,7 @@ public class RoboticsService {
     private void sendJsonByEmail(Appellant appellant, JSONObject json, byte[] pdf, Map<String, byte[]> additionalEvidence) {
         String appellantUniqueId = emailService.generateUniqueEmailId(appellant);
         List<EmailAttachment> attachments = addDefaultAttachment(json, pdf, appellantUniqueId);
-        addAdditionEvidenceAttachments(additionalEvidence, attachments);
+        addAdditionalEvidenceAttachments(additionalEvidence, attachments);
         emailService.sendEmail(
                 roboticsEmailTemplate.generateEmail(
                         appellantUniqueId,
@@ -82,7 +82,7 @@ public class RoboticsService {
         );
     }
 
-    private void addAdditionEvidenceAttachments(Map<String, byte[]> additionalEvidence, List<EmailAttachment> attachments) {
+    private void addAdditionalEvidenceAttachments(Map<String, byte[]> additionalEvidence, List<EmailAttachment> attachments) {
         for (String filename : additionalEvidence.keySet()) {
             attachments.add(file(additionalEvidence.get(filename), filename));
         }
