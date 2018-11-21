@@ -89,10 +89,10 @@ public class RoboticsService {
     }
 
     private List<EmailAttachment> addDefaultAttachment(JSONObject json, byte[] pdf, String appellantUniqueId) {
-        return newArrayList(
-                json(json.toString().getBytes(), appellantUniqueId + ".txt"),
-                pdf(pdf, appellantUniqueId + ".pdf")
-        );
+        EmailAttachment jsonAttachment = json(json.toString().getBytes(), appellantUniqueId + ".txt");
+        EmailAttachment pdfAttachment = pdf != null ? pdf(pdf, appellantUniqueId + ".pdf") : null;
+
+        return newArrayList(jsonAttachment, pdfAttachment);
     }
 
 }

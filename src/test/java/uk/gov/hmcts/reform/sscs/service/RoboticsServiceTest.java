@@ -93,6 +93,26 @@ public class RoboticsServiceTest {
     }
 
     @Test
+    public void generatingRoboticsWithEmptyPdfSendsAnEmail() {
+
+        SscsCaseData appeal = buildCaseData();
+
+        JSONObject mappedJson = mock(JSONObject.class);
+
+        given(roboticsJsonMapper.map(any())).willReturn(mappedJson);
+
+        given(airlookupService.lookupAirVenueNameByPostCode("AB12 XYZ")).willReturn("Bristol");
+
+        given(emailService.generateUniqueEmailId(appeal.getAppeal().getAppellant())).willReturn("Bloggs");
+
+        service.sendCaseToRobotics(appeal, 123L, "AB12 XYZ", null);
+
+        verify(roboticsJsonMapper).map(any());
+        verify(roboticsJsonValidator).validate(mappedJson);
+        verify(emailService).sendEmail(any());
+    }
+
+    @Test
     public void generatingRoboticsSendsAnEmailWithAdditionalEvidence() {
 
         SscsCaseData appeal = buildCaseData();
