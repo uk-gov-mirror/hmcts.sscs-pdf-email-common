@@ -1,15 +1,19 @@
 package uk.gov.hmcts.reform.sscs.json;
 
 import java.io.InputStream;
+import lombok.extern.slf4j.Slf4j;
 import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.sscs.exception.RoboticsValidationException;
 
 @Component
+@Slf4j
 public class RoboticsJsonValidator {
 
     private final String schemaResourceLocation;
@@ -24,7 +28,12 @@ public class RoboticsJsonValidator {
 
         tryLoadSchema();
 
-        schema.validate(roboticsJson);
+        try {
+            schema.validate(roboticsJson);
+        } catch (ValidationException validationException) {
+            log.error("Robotics service failed to validate json", validationException);
+            throw new RoboticsValidationException(validationException);
+        }
     }
 
     private synchronized void tryLoadSchema() {
