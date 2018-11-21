@@ -1,10 +1,8 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.file;
-import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.json;
-import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.pdf;
+import static uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -89,10 +87,15 @@ public class RoboticsService {
     }
 
     private List<EmailAttachment> addDefaultAttachment(JSONObject json, byte[] pdf, String appellantUniqueId) {
-        EmailAttachment jsonAttachment = json(json.toString().getBytes(), appellantUniqueId + ".txt");
-        EmailAttachment pdfAttachment = pdf != null ? pdf(pdf, appellantUniqueId + ".pdf") : null;
+        List<EmailAttachment> emailAttachments = new ArrayList<>();
 
-        return newArrayList(jsonAttachment, pdfAttachment);
+        emailAttachments.add(json(json.toString().getBytes(), appellantUniqueId + ".txt"));
+
+        if (pdf != null) {
+            emailAttachments.add(pdf(pdf, appellantUniqueId + ".pdf"));
+        }
+
+        return emailAttachments;
     }
 
 }
