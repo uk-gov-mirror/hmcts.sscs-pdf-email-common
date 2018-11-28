@@ -17,12 +17,16 @@ public class RoboticsJsonMapper {
 
         SscsCaseData sscsCaseData = wrapper.getSscsCaseData();
 
-        JSONObject obj = new JSONObject();
-
-        obj = buildAppealDetails(obj, sscsCaseData.getAppeal(), wrapper.getVenueName());
+        JSONObject obj = buildAppealDetails(new JSONObject(), sscsCaseData.getAppeal(), wrapper.getVenueName());
 
         obj.put("caseId", wrapper.getCcdCaseId());
         obj.put("evidencePresent", wrapper.getEvidencePresent());
+
+        if (null != sscsCaseData.getAppeal().getAppellant().getAppointee()) {
+            Boolean sameAddressAsAppointee = sscsCaseData.getAppeal().getAppellant().getAppointee().getSameAddressAsAppellant();
+            obj.put("appointee", buildAppointeeDetails(sscsCaseData.getAppeal().getAppellant().getAppointee(), sameAddressAsAppointee));
+        }
+
         obj.put("appellant", buildAppellantDetails(sscsCaseData.getAppeal().getAppellant()));
 
         if (sscsCaseData.getAppeal().getRep() != null && sscsCaseData.getAppeal().getRep().getHasRepresentative().equals("Yes")) {
@@ -75,6 +79,18 @@ public class RoboticsJsonMapper {
         json.put("lastName", appellant.getName().getLastName());
 
         return buildContactDetails(json, appellant.getAddress(), appellant.getContact());
+    }
+
+    private static JSONObject buildAppointeeDetails(Appointee appointee, Boolean sameAddressAsAppointee) {
+        JSONObject json = new JSONObject();
+
+        json.put("title", appointee.getName().getTitle());
+        json.put("firstName", appointee.getName().getFirstName());
+        json.put("lastName", appointee.getName().getLastName());
+
+        json.put("sameAddressAsAppellant", sameAddressAsAppointee ? "Yes" : "No");
+
+        return buildContactDetails(json, appointee.getAddress(), appointee.getContact());
     }
 
     private static JSONObject buildRepresentativeDetails(Representative rep) {
@@ -135,13 +151,11 @@ public class RoboticsJsonMapper {
         return hearingArrangements;
     }
 
-
-
     private static JSONObject buildContactDetails(JSONObject json, Address address, Contact contact) {
         json.put("addressLine1", address.getLine1());
 
         if (address.getLine2() != null) {
-            json.put("addressLine2",address.getLine2());
+            json.put("addressLine2", address.getLine2());
         }
 
         json.put("townOrCity", address.getTown());
