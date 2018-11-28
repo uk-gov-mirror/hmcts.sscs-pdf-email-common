@@ -34,6 +34,7 @@ import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 public class EvidenceManagementServiceTest {
 
     public static final String SERVICE_AUTHORIZATION = "service-authorization";
+    public static final String SSCS_USER = "sscs";
 
     @Mock
     private AuthTokenGenerator authTokenGenerator;
@@ -63,7 +64,7 @@ public class EvidenceManagementServiceTest {
         when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
                 .thenReturn(expectedUploadResponse);
 
-        UploadResponse actualUploadedResponse = evidenceManagementService.upload(files);
+        UploadResponse actualUploadedResponse = evidenceManagementService.upload(files, SSCS_USER);
 
         verify(documentUploadClientApi, times(1))
                 .upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files));
@@ -79,7 +80,7 @@ public class EvidenceManagementServiceTest {
         when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
-        evidenceManagementService.upload(files);
+        evidenceManagementService.upload(files, SSCS_USER);
 
     }
 
@@ -101,7 +102,7 @@ public class EvidenceManagementServiceTest {
         when(documentUploadClientApi.upload(any(), eq(SERVICE_AUTHORIZATION), anyString(), eq(files)))
                 .thenThrow(new Exception("AppealNumber"));
 
-        evidenceManagementService.upload(files);
+        evidenceManagementService.upload(files, SSCS_USER);
     }
 
     @Test
@@ -122,7 +123,7 @@ public class EvidenceManagementServiceTest {
         when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
 
-        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);
 
         verify(mockResponseEntity, times(1)).getBody();
     }
@@ -144,7 +145,7 @@ public class EvidenceManagementServiceTest {
         when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
         when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
-        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);
     }
 
     @Test(expected = Exception.class)
@@ -163,6 +164,6 @@ public class EvidenceManagementServiceTest {
         when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString()))
             .thenThrow(new Exception("AppealNumber"));
 
-        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"));
+        evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);
     }
 }
