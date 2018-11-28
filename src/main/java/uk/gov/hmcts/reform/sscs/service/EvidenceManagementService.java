@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 public class EvidenceManagementService {
 
     public static final String S2S_TOKEN = "oauth2Token";
-
     public static final String DS_USER_ID = "sscs";
 
     private final AuthTokenGenerator authTokenGenerator;
@@ -44,13 +43,13 @@ public class EvidenceManagementService {
         this.evidenceMetadataDownloadClient = evidenceMetadataDownloadClient;
     }
 
-    public UploadResponse upload(List<MultipartFile> files) {
+    public UploadResponse upload(List<MultipartFile> files, String userId) {
 
         String serviceAuthorization = authTokenGenerator.generate();
 
         try {
             return documentUploadClientApi
-                .upload(S2S_TOKEN, serviceAuthorization, DS_USER_ID, files);
+                .upload(S2S_TOKEN, serviceAuthorization, userId, files);
         } catch (HttpClientErrorException httpClientErrorException) {
             log.error("Doc Store service failed to upload documents...", httpClientErrorException);
             if (null != files) {
@@ -60,7 +59,7 @@ public class EvidenceManagementService {
         }
     }
 
-    public byte[] download(URI documentSelf) {
+    public byte[] download(URI documentSelf, String userId) {
         String serviceAuthorization = authTokenGenerator.generate();
 
         try {
@@ -68,14 +67,16 @@ public class EvidenceManagementService {
                 S2S_TOKEN,
                 serviceAuthorization,
                 DS_USER_ID,
-                documentSelf.getPath()
+                "caseworker",
+                documentSelf.getPath().replaceFirst("/", "")
             );
 
             ResponseEntity<Resource> responseEntity =  evidenceDownloadClientApi.downloadBinary(
                 S2S_TOKEN,
                 serviceAuthorization,
                 DS_USER_ID,
-                URI.create(documentMetadata.links.binary.href).getPath()
+                "caseworker",
+                URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
             );
 
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
