@@ -120,8 +120,8 @@ public class EvidenceManagementServiceTest {
         stubbedDocument.links = stubbedLinks;
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(mockResponseEntity);
 
         evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);
 
@@ -142,8 +142,8 @@ public class EvidenceManagementServiceTest {
         stubbedDocument.links = stubbedLinks;
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString())).thenThrow(new HttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY));
 
         evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);
     }
@@ -160,8 +160,8 @@ public class EvidenceManagementServiceTest {
         stubbedDocument.links = stubbedLinks;
 
         when(authTokenGenerator.generate()).thenReturn(SERVICE_AUTHORIZATION);
-        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
-        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString()))
+        when(evidenceMetadataDownloadClientApi.getDocumentMetadata(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(stubbedDocument);
+        when(evidenceDownloadClientApi.downloadBinary(anyString(), anyString(), anyString(), anyString(), anyString()))
             .thenThrow(new Exception("AppealNumber"));
 
         evidenceManagementService.download(URI.create("http://localhost:4506/somefile.doc"), SSCS_USER);

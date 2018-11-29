@@ -65,15 +65,17 @@ public class EvidenceManagementService {
             Document documentMetadata = evidenceMetadataDownloadClient.getDocumentMetadata(
                 S2S_TOKEN,
                 serviceAuthorization,
-                    userId,
+                userId,
+                "caseworker",
                 documentSelf.getPath().replaceFirst("/", "")
             );
 
             ResponseEntity<Resource> responseEntity =  evidenceDownloadClientApi.downloadBinary(
                 S2S_TOKEN,
                 serviceAuthorization,
-                    userId,
-                URI.create(documentMetadata.links.binary.href).getPath()
+                userId,
+                    "caseworker",
+                URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
             );
 
             ByteArrayResource resource = (ByteArrayResource) responseEntity.getBody();
