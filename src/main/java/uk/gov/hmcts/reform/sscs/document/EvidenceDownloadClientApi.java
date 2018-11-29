@@ -18,6 +18,7 @@ public interface EvidenceDownloadClientApi {
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorisation,
         @RequestHeader("ServiceAuthorization") String serviceAuth,
         @RequestHeader(USER_ID) String userId,
+        @RequestHeader("user-roles") String userRoles,
         @PathVariable("document_download_uri") String documentDownloadUri
     );
 }

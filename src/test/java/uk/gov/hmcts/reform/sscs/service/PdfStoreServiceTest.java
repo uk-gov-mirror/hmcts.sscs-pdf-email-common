@@ -23,6 +23,8 @@ public class PdfStoreServiceTest {
     private final String expectedHref = "some link";
     private final byte[] content = new byte[]{1, 2, 3};
     private final String filename = "filename";
+    public static final String SSCS_USER = "sscs";
+
     private final EvidenceManagementService evidenceManagementService;
     private final List<MultipartFile> files;
 
@@ -34,7 +36,7 @@ public class PdfStoreServiceTest {
     @Test
     public void uploadsPdfAndExtractsLink() {
         UploadResponse uploadResponse = createUploadResponse();
-        when(evidenceManagementService.upload(files)).thenReturn(uploadResponse);
+        when(evidenceManagementService.upload(files, SSCS_USER)).thenReturn(uploadResponse);
 
         List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename);
 
@@ -46,7 +48,7 @@ public class PdfStoreServiceTest {
 
     @Test
     public void cannotConnectToDocumentStore() {
-        when(evidenceManagementService.upload(files)).thenThrow(new RestClientException("Cannot connect"));
+        when(evidenceManagementService.upload(files, SSCS_USER)).thenThrow(new RestClientException("Cannot connect"));
         List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename);
 
         assertThat(documents.size(), is(0));
