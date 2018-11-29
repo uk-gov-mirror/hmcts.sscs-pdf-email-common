@@ -23,7 +23,6 @@ import uk.gov.hmcts.reform.sscs.exception.UnsupportedDocumentTypeException;
 public class EvidenceManagementService {
 
     public static final String S2S_TOKEN = "oauth2Token";
-    public static final String DS_USER_ID = "sscs";
 
     private final AuthTokenGenerator authTokenGenerator;
     private final DocumentUploadClientApi documentUploadClientApi;
@@ -66,16 +65,16 @@ public class EvidenceManagementService {
             Document documentMetadata = evidenceMetadataDownloadClient.getDocumentMetadata(
                 S2S_TOKEN,
                 serviceAuthorization,
-                DS_USER_ID,
-                "caseworker",
+                userId,
+      			"caseworker",
                 documentSelf.getPath().replaceFirst("/", "")
             );
 
             ResponseEntity<Resource> responseEntity =  evidenceDownloadClientApi.downloadBinary(
                 S2S_TOKEN,
                 serviceAuthorization,
-                DS_USER_ID,
-                "caseworker",
+                userId,
+      			"caseworker",
                 URI.create(documentMetadata.links.binary.href).getPath().replaceFirst("/", "")
             );
 
