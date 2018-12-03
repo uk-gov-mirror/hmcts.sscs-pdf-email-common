@@ -23,7 +23,7 @@ public class RoboticsJsonMapper {
         obj.put("evidencePresent", wrapper.getEvidencePresent());
 
         if (null != sscsCaseData.getAppeal().getAppellant().getAppointee()) {
-            Boolean sameAddressAsAppointee = sscsCaseData.getAppeal().getAppellant().getIsAddressSameAsAppointee();
+            Boolean sameAddressAsAppointee = "Yes".equalsIgnoreCase(sscsCaseData.getAppeal().getAppellant().getIsAddressSameAsAppointee());
             obj.put("appointee", buildAppointeeDetails(sscsCaseData.getAppeal().getAppellant().getAppointee(), sameAddressAsAppointee));
         }
 
