@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.sscs.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
 import java.time.LocalDate;
@@ -233,82 +232,6 @@ public class RoboticsJsonMapperTest {
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
 
         assertFalse(roboticsJson.has("representative"));
-    }
-
-    @Test
-    public void givenAnAppointeeWithTheSameAddress_thenProcessRobotics() {
-        Name appointeeName = Name.builder()
-            .title("Mr")
-            .firstName("Andrew")
-            .lastName("Giles")
-            .build();
-
-        Appointee appointee = Appointee.builder()
-            .name(appointeeName)
-            .sameAddressAsAppellant(true)
-            .address(appeal.getSscsCaseData().getAppeal().getAppellant().getAddress())
-            .contact(appeal.getSscsCaseData().getAppeal().getAppellant().getContact())
-            .build();
-
-        appeal.getSscsCaseData().getAppeal().getAppellant().setAppointee(appointee);
-
-        JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
-
-        assertTrue(roboticsJson.has("appointee"));
-        assertEquals(appointeeName.getFirstName(), roboticsJson.getJSONObject("appointee").getString("firstName"));
-        assertEquals(appointeeName.getLastName(), roboticsJson.getJSONObject("appointee").getString("lastName"));
-        assertEquals("Yes", roboticsJson.getJSONObject("appointee").getString("sameAddressAsAppellant"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("addressLine1"), roboticsJson.getJSONObject("appointee").getString("addressLine1"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("addressLine2"), roboticsJson.getJSONObject("appointee").getString("addressLine2"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("townOrCity"), roboticsJson.getJSONObject("appointee").getString("townOrCity"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("county"), roboticsJson.getJSONObject("appointee").getString("county"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("postCode"), roboticsJson.getJSONObject("appointee").getString("postCode"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("phoneNumber"), roboticsJson.getJSONObject("appointee").getString("phoneNumber"));
-        assertEquals(roboticsJson.getJSONObject("appellant").getString("email"), roboticsJson.getJSONObject("appointee").getString("email"));
-    }
-
-    @Test
-    public void givenAnAppointeeWithADifferentAddress_thenProcessRobotics() {
-        Name appointeeName = Name.builder()
-            .title("Mr")
-            .firstName("Andrew")
-            .lastName("Giles")
-            .build();
-
-        Address appointeeAddress = Address.builder()
-            .line1("999 Another Street")
-            .town("Another Town")
-            .county("Newcastle")
-            .postcode("NE1 1AW")
-            .build();
-
-        Contact appointeeContact = Contact.builder()
-            .email("appointee@email.com")
-            .mobile("01234567810")
-            .build();
-
-        Appointee appointee = Appointee.builder()
-            .name(appointeeName)
-            .sameAddressAsAppellant(false)
-            .address(appointeeAddress)
-            .contact(appointeeContact)
-            .build();
-
-        appeal.getSscsCaseData().getAppeal().getAppellant().setAppointee(appointee);
-
-        JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
-
-        assertTrue(roboticsJson.has("appointee"));
-        assertEquals(appointeeName.getFirstName(), roboticsJson.getJSONObject("appointee").getString("firstName"));
-        assertEquals(appointeeName.getLastName(), roboticsJson.getJSONObject("appointee").getString("lastName"));
-        assertEquals("No", roboticsJson.getJSONObject("appointee").getString("sameAddressAsAppellant"));
-        assertEquals("999 Another Street", roboticsJson.getJSONObject("appointee").getString("addressLine1"));
-        assertFalse(roboticsJson.getJSONObject("appointee").has("addressLine2"));
-        assertEquals("Another Town", roboticsJson.getJSONObject("appointee").getString("townOrCity"));
-        assertEquals("Newcastle", roboticsJson.getJSONObject("appointee").getString("county"));
-        assertEquals("NE1 1AW", roboticsJson.getJSONObject("appointee").getString("postCode"));
-        assertEquals("01234567810", roboticsJson.getJSONObject("appointee").getString("phoneNumber"));
-        assertEquals("appointee@email.com", roboticsJson.getJSONObject("appointee").getString("email"));
     }
 
     @Test
