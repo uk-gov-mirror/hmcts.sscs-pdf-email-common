@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.json;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
@@ -232,6 +233,26 @@ public class RoboticsJsonMapperTest {
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
 
         assertFalse(roboticsJson.has("representative"));
+    }
+
+    @Test
+    public void givenAnAppointee_thenProcessRobotics() {
+        Name appointeeName = Name.builder().title("Mrs").firstName("Ap").lastName("Pointee").build();
+
+        Appointee appointee = Appointee.builder()
+            .name(appointeeName)
+            .address(appeal.getSscsCaseData().getAppeal().getAppellant().getAddress())
+            .contact(appeal.getSscsCaseData().getAppeal().getAppellant().getContact())
+            .build();
+
+        appeal.getSscsCaseData().getAppeal().getAppellant().setIsAddressSameAsAppointee("Yes");
+
+        appeal.getSscsCaseData().getAppeal().getAppellant().setAppointee(appointee);
+
+        JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
+
+        assertTrue(roboticsJson.has("appointee"));
+        assertEquals("Yes", roboticsJson.getJSONObject("appointee").getString("sameAddressAsAppellant"));
     }
 
     @Test
