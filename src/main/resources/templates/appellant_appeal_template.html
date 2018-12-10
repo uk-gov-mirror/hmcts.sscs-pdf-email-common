@@ -164,6 +164,59 @@
         </div>
     </dl>
 
+    <!-- Appointee -->
+    {% if PdfWrapper.sscsCaseData.appeal.appellant.appointee is defined %}
+
+    <h2 class="heading-medium">Appointee</h2>
+    <dl class="govuk-check-your-answers">
+        <div>
+            <dt class="cya-question">Title</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.name.title }}</dd>
+        </div>
+
+        <div>
+            <dt class="cya-question">First name</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.name.firstName }}</dd>
+        </div>
+
+        <div>
+            <dt class="cya-question">Surname</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.name.lastName }}</dd>
+        </div>
+
+        <div>
+            <dt class="cya-question">Date of birth</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.identity.dob | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") }}</dd>
+        </div>
+
+        <div>
+            <dt class="cya-question">Address</dt>
+            <dd class="cya-answer">
+                {{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.address.line1 }}<br/>
+
+                <!-- This field is optional, only add it if it exists. -->
+                {% if PdfWrapper.sscsCaseData.appeal.appellant.appointee.address.line2 is not empty %}
+                {{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.address.line2 }}<br/>
+                {% endif %}
+
+                {{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.address.town }}<br/>
+                {{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.address.county }}<br/>
+                {{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.address.postcode }}<br/>
+            </dd>
+        </div>
+
+        <div>
+            <dt class="cya-question">Phone number</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.contact.mobile | default('Not provided') }}</dd>
+        </div>
+
+        <div>
+            <dt class="cya-question">Email</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.contact.email | default('Not provided') }}</dd>
+        </div>
+    </dl>
+    {% endif %}
+
     <!-- Representative -->
 
     <h2 class="heading-medium">Representative</h2>

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.sscs.json;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
@@ -10,12 +11,10 @@ import java.util.List;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import uk.gov.hmcts.reform.sscs.ccd.domain.DateRange;
-import uk.gov.hmcts.reform.sscs.ccd.domain.ExcludeDate;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.domain.robotics.RoboticsWrapper;
 
 public class RoboticsJsonMapperTest {
-
     private RoboticsJsonMapper roboticsJsonMapper = new RoboticsJsonMapper();
     private RoboticsWrapper appeal;
     private RoboticsJsonValidator roboticsJsonValidator = new RoboticsJsonValidator("/schema/sscs-robotics.json");
@@ -31,7 +30,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void mapsAppealToRoboticsJson() {
-
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
 
         roboticsJsonValidator.validate(roboticsJson);
@@ -104,7 +102,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void mapRepTitleToDefaultValuesWhenSetToNull() {
-
         appeal.getSscsCaseData().getAppeal().getRep().getName().setTitle(null);
 
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
@@ -114,7 +111,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void mapRepFirstNameToDefaultValuesWhenSetToNull() {
-
         appeal.getSscsCaseData().getAppeal().getRep().getName().setFirstName(null);
 
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
@@ -124,7 +120,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void mapRepLastNameToDefaultValuesWhenSetToNull() {
-
         appeal.getSscsCaseData().getAppeal().getRep().getName().setLastName(null);
 
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
@@ -134,7 +129,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenLanguageInterpreterIsTrue_thenSetToLanguageInterpreterType() {
-
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setLanguages("My Language");
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
 
@@ -145,7 +139,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenHearingArrangementIsNull_thenSetToExcludeDatesHearingLoopAndAccHearingRoom() {
-
         DateRange dateRange1 = DateRange.builder()
                 .start("2018-06-30")
                 .end("2018-06-30")
@@ -166,7 +159,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenLanguageInterpreterIsFalse_thenDoNotSetLanguageInterpreter() {
-
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setLanguages("My Language");
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setLanguageInterpreter("No");
 
@@ -177,7 +169,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenLanguageInterpreterIsTrueAndInterpreterLanguageTypeIsNull_thenDoNotSetLanguageInterpreter() {
-
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setLanguages(null);
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setLanguageInterpreter("Yes");
 
@@ -188,7 +179,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenSignLanguageInterpreterIsTrue_thenSetToSignLanguageInterpreterType() {
-
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setSignLanguageType("My Language");
         List<String> arrangements = new ArrayList<>();
         arrangements.add("signLanguageInterpreter");
@@ -201,7 +191,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenSignLanguageInterpreterIsFalse_thenDoNotSetSignLanguageInterpreter() {
-
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setSignLanguageType("My Language");
         List<String> arrangements = new ArrayList<>();
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setArrangements(arrangements);
@@ -213,7 +202,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenSignLanguageInterpreterIsTrueAndSignInterpreterLanguageTypeIsNull_thenDoNotSetSignLanguageInterpreter() {
-
         appeal.getSscsCaseData().getAppeal().getHearingOptions().setSignLanguageType(null);
         List<String> arrangements = new ArrayList<>();
         arrangements.add("signLanguageInterpreter");
@@ -237,7 +225,6 @@ public class RoboticsJsonMapperTest {
 
     @Test
     public void givenAMissingRepresentative_thenProcessRobotics() {
-
         appeal.getSscsCaseData().getAppeal().getRep().setAddress(null);
         appeal.getSscsCaseData().getAppeal().getRep().setName(null);
         appeal.getSscsCaseData().getAppeal().getRep().setOrganisation(null);
@@ -246,6 +233,32 @@ public class RoboticsJsonMapperTest {
         JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
 
         assertFalse(roboticsJson.has("representative"));
+    }
 
+    @Test
+    public void givenAnAppointee_thenProcessRobotics() {
+        Name appointeeName = Name.builder().title("Mrs").firstName("Ap").lastName("Pointee").build();
+
+        Appointee appointee = Appointee.builder()
+            .name(appointeeName)
+            .address(appeal.getSscsCaseData().getAppeal().getAppellant().getAddress())
+            .contact(appeal.getSscsCaseData().getAppeal().getAppellant().getContact())
+            .build();
+
+        appeal.getSscsCaseData().getAppeal().getAppellant().setIsAddressSameAsAppointee("Yes");
+
+        appeal.getSscsCaseData().getAppeal().getAppellant().setAppointee(appointee);
+
+        JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
+
+        assertTrue(roboticsJson.has("appointee"));
+        assertEquals("Yes", roboticsJson.getJSONObject("appointee").getString("sameAddressAsAppellant"));
+    }
+
+    @Test
+    public void givenNoAppointee_thenProcessRobotics() {
+        JSONObject roboticsJson = roboticsJsonMapper.map(appeal);
+
+        assertFalse(roboticsJson.has("appointee"));
     }
 }

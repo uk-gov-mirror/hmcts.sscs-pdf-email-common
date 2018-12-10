@@ -60,8 +60,7 @@ public class RoboticsService {
 
     public JSONObject createRobotics(RoboticsWrapper appeal) {
 
-        JSONObject roboticsAppeal =
-                roboticsJsonMapper.map(appeal);
+        JSONObject roboticsAppeal = roboticsJsonMapper.map(appeal);
 
         roboticsJsonValidator.validate(roboticsAppeal);
 
