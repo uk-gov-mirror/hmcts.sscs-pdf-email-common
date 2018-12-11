@@ -10,20 +10,22 @@ To build run
 ./gradlew clean build
 ```
 This will create a jar file in the projects build libs directory.
-If you want to then depend on this without publishing it you can add the following to your build.gradle file
-in the dependencies section.
 
-```gradle
-compile files('{PROJECT_DIR}/sscs-pdf-robotics-common/build/libs/sscs-pdf-robotics-common-0.0.84.jar')
+To depend on this in other projects run
+
+```bash
+./gradlew install
 ```
+
+This will install the jar into your local maven repo. Then just add a dependency the other project with a 
+version of DEV-SNAPSHOT.
 
 ###Release candidate
 
 To release a candidate
 
-1. Change the version to, e.g. 0.0.85-CANDIDATE
 1. Commit and push upstream
-1. Tag this commit and push the tag upstream
+2. Tag this commit and push the tag upstream
     ```bash
     git tag -a 0.0.85-CANDIDATE
     git push origin 0.0.85-CANDIDATE
