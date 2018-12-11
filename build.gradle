@@ -14,7 +14,7 @@ def buildNumber = System.getenv("TRAVIS_BRANCH") ?: "DEV-SNAPSHOT"
 
 group 'uk.gov.hmcts.reform'
 // Do not change this version number
-version '0.0.' + buildNumber
+version buildNumber
 
 sourceCompatibility = 1.8
 
