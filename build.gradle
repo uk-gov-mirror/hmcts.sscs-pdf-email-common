@@ -7,10 +7,14 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+    id 'maven'
 }
 
+def buildNumber = System.getenv("TRAVIS_BRANCH") ?: "DEV-SNAPSHOT"
+
 group 'uk.gov.hmcts.reform'
-version '0.0.92'
+// Do not change this version number
+version '0.0.' + buildNumber
 
 sourceCompatibility = 1.8
 
