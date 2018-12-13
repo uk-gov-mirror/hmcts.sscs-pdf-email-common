@@ -84,7 +84,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
             groupId project.group
-            artifactId 'sscs-pdf-robotics-email-common'
+            artifactId 'sscs-pdf-email-common'
             version project.version
         }
     }
@@ -97,10 +97,10 @@ bintray {
     publish = true
     pkg {
         repo = 'hmcts-maven'
-        name = 'sscs-pdf-robotics-email-common'
+        name = 'sscs-pdf-email-common'
         userOrg = 'hmcts'
         licenses = ['MIT']
-        vcsUrl = 'https://github.com/hmcts/sscs-pdf-robotics-email-common'
+        vcsUrl = 'https://github.com/hmcts/sscs-pdf-email-common'
         version {
             name = project.version
         }
