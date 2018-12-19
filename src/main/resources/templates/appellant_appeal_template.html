@@ -415,16 +415,30 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Receive text message reminders</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications }}</dd>
+            <dd class="cya-answer">
+                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription is defined %}
+                    {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications }}
+                {% else %}
+                    {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications }}
+                {% endif %}
+            </dd>
         </div>
 
         <div>
             <dt class="cya-question">Mobile number</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications == 'Yes'  %}
-                {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.mobile }}
+                {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription is defined %}
+                    {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications == 'Yes'  %}
+                    {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.mobile }}
+                    {% else %}
+                    Not Applicable
+                    {% endif %}
                 {% else %}
-                Not Applicable
+                    {% if PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications == 'Yes'  %}
+                    {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.mobile }}
+                    {% else %}
+                    Not Applicable
+                    {% endif %}
                 {% endif %}
             </dd>
         </div>
