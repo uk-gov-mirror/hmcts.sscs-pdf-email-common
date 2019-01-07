@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
-import static uk.gov.hmcts.reform.sscs.config.AppConstants.*;
+import static uk.gov.hmcts.reform.sscs.config.PDFTemplateConstants.*;
 
 import java.io.IOException;
 import java.io.InputStream;
