@@ -43,7 +43,7 @@ public class SscsPdfServiceTest {
     @Before
     public void setup() {
         initMocks(this);
-        service = new SscsPdfService(TEMPLATE_PATH, pdfServiceClient, emailService, pdfStoreService, submitYourAppealEmailTemplate, ccdService);
+        service = new SscsPdfService(pdfServiceClient, emailService, pdfStoreService, submitYourAppealEmailTemplate, ccdService);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class SscsPdfServiceTest {
         byte[] expected = {};
         given(pdfServiceClient.generateFromHtml(any(byte[].class), any())).willReturn(expected);
 
-        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+        service.generateAndSendPdf(TEMPLATE_PATH, caseData, 1L, IdamTokens.builder().build());
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
@@ -66,7 +66,7 @@ public class SscsPdfServiceTest {
 
         caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("No").build());
 
-        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+        service.generateAndSendPdf(TEMPLATE_PATH, caseData, 1L, IdamTokens.builder().build());
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
@@ -81,7 +81,7 @@ public class SscsPdfServiceTest {
 
         caseData.getAppeal().setRep(Representative.builder().hasRepresentative("No").build());
 
-        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+        service.generateAndSendPdf(TEMPLATE_PATH, caseData, 1L, IdamTokens.builder().build());
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
