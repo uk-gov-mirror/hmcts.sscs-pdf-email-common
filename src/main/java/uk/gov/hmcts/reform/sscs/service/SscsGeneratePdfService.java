@@ -55,6 +55,7 @@ public class SscsGeneratePdfService {
         return pdfServiceClient.generateFromHtml(template, placeholders);
     }
 
+    // TODO: Use representative name and not Appellant name in address
     private static String getRepFullName(Representative representative) {
         if (representative != null && representative.getName() != null) {
             return representative.getName().getFullName();
