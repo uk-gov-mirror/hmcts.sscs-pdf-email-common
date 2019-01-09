@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.sscs.config;
 
-public final class PDFTemplateConstants {
+public final class PdfTemplateConstants {
 
     public static final String LETTER_ADDRESS_LINE_1 = "letter_address_line_1";
     public static final String LETTER_ADDRESS_LINE_2 = "letter_address_line_2";
@@ -16,7 +16,7 @@ public final class PDFTemplateConstants {
     public static final String SUPPORT_CENTRE_NAME_LITERAL = "support_centre_name";
     public static final String TOWN_LITERAL = "town";
 
-    private PDFTemplateConstants() {
+    private PdfTemplateConstants() {
         //
     }
 }

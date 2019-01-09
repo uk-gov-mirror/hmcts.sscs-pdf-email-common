@@ -47,6 +47,7 @@ public class SscsPdfService {
         this.pdfStoreService = pdfStoreService;
         this.submitYourAppealEmailTemplate = submitYourAppealEmailTemplate;
         this.ccdService = ccdService;
+        this.appellantTemplatePath = appellantTemplatePath;
     }
 
     public byte[] generateAndSendPdf(SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens) {
