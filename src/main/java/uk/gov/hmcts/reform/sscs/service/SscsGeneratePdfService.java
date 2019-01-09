@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
+import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
+import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.domain.pdf.PdfWrapper;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -26,14 +28,24 @@ public class SscsGeneratePdfService {
     private static final String RPC = "rpc_";
     private PDFServiceClient pdfServiceClient;
     private PdfStoreService pdfStoreService;
+    private CcdService ccdService;
 
     @Autowired
-    public SscsGeneratePdfService(PDFServiceClient pdfServiceClient, PdfStoreService pdfStoreService) {
+    public SscsGeneratePdfService(PDFServiceClient pdfServiceClient, PdfStoreService pdfStoreService, CcdService ccdService) {
         this.pdfServiceClient = pdfServiceClient;
         this.pdfStoreService = pdfStoreService;
+        this.ccdService = ccdService;
     }
 
-    public byte[] generatePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, Map<String, String> notificationPlaceholders, IdamTokens idamTokens) {
+    public byte[] generateAndSavePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, Map<String, String> notificationPlaceholders, IdamTokens idamTokens) {
+        byte[] generatedPdf = generatePdf(templatePath, sscsCaseData, caseDetailsId, notificationPlaceholders);
+
+        mergeDocIntoCcd("Direction_Notice.pdf", generatedPdf, caseDetailsId, sscsCaseData, idamTokens);
+
+        return generatedPdf;
+    }
+
+    protected byte[] generatePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, Map<String, String> notificationPlaceholders) {
         byte[] template;
         try {
             template = getTemplate(templatePath);
@@ -60,15 +72,6 @@ public class SscsGeneratePdfService {
         return pdfServiceClient.generateFromHtml(template, placeholders);
     }
 
-    // TODO: Use representative name and not Appellant name in address
-    private static String getRepFullName(Representative representative) {
-        if (representative != null && representative.getName() != null) {
-            return representative.getName().getFullName();
-        } else {
-            return null;
-        }
-    }
-
     private byte[] getTemplate(String templatePath) throws IOException {
         InputStream in = getClass().getResourceAsStream(templatePath);
         return IOUtils.toByteArray(in);
@@ -83,7 +86,6 @@ public class SscsGeneratePdfService {
         if (caseId == null) {
             log.info("caseId is empty - skipping step to update CCD with PDF");
         } else {
-            SscsDocument document = SscsDocument.builder().
             List<SscsDocument> allDocuments = combineEvidenceAndAppealPdf(caseData, pdfDocuments);
             SscsCaseData caseDataWithAppealPdf = caseData.toBuilder().sscsDocument(allDocuments).build();
             updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens);
@@ -100,4 +102,13 @@ public class SscsGeneratePdfService {
         return allDocuments;
     }
 
+    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens) {
+        try {
+            return ccdService.updateCase(caseData, caseId, eventId, "SSCS - appeal updated event", "Updated SSCS", idamTokens);
+        } catch (CcdException ccdEx) {
+            log.error("Failed to update ccd case with direction notice but carrying on [" + caseId + "] ["
+                + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
+            return SscsCaseDetails.builder().build();
+        }
+    }
 }
