@@ -13,6 +13,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
@@ -27,6 +28,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 @Slf4j
 public class SscsPdfService {
 
+    private String appellantTemplatePath;
     private PDFServiceClient pdfServiceClient;
     private EmailService emailService;
     private PdfStoreService pdfStoreService;
@@ -34,7 +36,8 @@ public class SscsPdfService {
     private CcdService ccdService;
 
     @Autowired
-    public SscsPdfService(PDFServiceClient pdfServiceClient,
+    public SscsPdfService(@Value("${appellant.appeal.html.template.path}") String appellantTemplatePath,
+                          PDFServiceClient pdfServiceClient,
                           EmailService emailService,
                           PdfStoreService pdfStoreService,
                           SubmitYourAppealEmailTemplate submitYourAppealEmailTemplate,
@@ -44,10 +47,11 @@ public class SscsPdfService {
         this.pdfStoreService = pdfStoreService;
         this.submitYourAppealEmailTemplate = submitYourAppealEmailTemplate;
         this.ccdService = ccdService;
+        this.appellantTemplatePath = appellantTemplatePath;
     }
 
-    public byte[] generateAndSendPdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens) {
-        byte[] pdf = generatePdf(templatePath, sscsCaseData, caseDetailsId);
+    public byte[] generateAndSendPdf(SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens) {
+        byte[] pdf = generatePdf(sscsCaseData, caseDetailsId);
 
         sendPdfByEmail(sscsCaseData.getAppeal(), pdf);
 
@@ -56,10 +60,10 @@ public class SscsPdfService {
         return pdf;
     }
 
-    private byte[] generatePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId) {
+    private byte[] generatePdf(SscsCaseData sscsCaseData, Long caseDetailsId) {
         byte[] template;
         try {
-            template = getTemplate(templatePath);
+            template = getTemplate();
         } catch (IOException e) {
             throw new PdfGenerationException("Error getting template", e);
         }
@@ -134,8 +138,8 @@ public class SscsPdfService {
         }
     }
 
-    private byte[] getTemplate(String templatePath) throws IOException {
-        InputStream in = getClass().getResourceAsStream(templatePath);
+    private byte[] getTemplate() throws IOException {
+        InputStream in = getClass().getResourceAsStream(appellantTemplatePath);
         return IOUtils.toByteArray(in);
     }
 
