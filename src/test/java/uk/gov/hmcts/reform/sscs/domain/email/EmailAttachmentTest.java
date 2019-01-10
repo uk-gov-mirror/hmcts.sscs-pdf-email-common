@@ -26,6 +26,20 @@ public class EmailAttachmentTest {
         allowedContentTypes.put("txt", "text/plain");
         allowedContentTypes.put("xls", "application/vnd.ms-excel");
         allowedContentTypes.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        allowedContentTypes.put("bmp", "image/bmp");
+        allowedContentTypes.put("tiff", "image/tiff");
+        allowedContentTypes.put("tif", "image/tiff");
+        allowedContentTypes.put("dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template");
+        allowedContentTypes.put("xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template");
+        allowedContentTypes.put("potx", "application/vnd.openxmlformats-officedocument.presentationml.template");
+        allowedContentTypes.put("ppsx", "application/vnd.openxmlformats-officedocument.presentationml.slideshow");
+        allowedContentTypes.put("xlt", "application/vnd.ms-excel");
+        allowedContentTypes.put("dot", "application/msword");
+        allowedContentTypes.put("xla", "application/vnd.ms-excel");
+        allowedContentTypes.put("xlsb", "application/vnd.ms-excel.sheet.binary.macroEnabled.12");
+        allowedContentTypes.put("pot", "application/vnd.ms-powerpoint");
+        allowedContentTypes.put("pps", "application/vnd.ms-powerpoint");
+        allowedContentTypes.put("ppa", "application/vnd.ms-powerpoint");
 
         byte[] data = {};
 
