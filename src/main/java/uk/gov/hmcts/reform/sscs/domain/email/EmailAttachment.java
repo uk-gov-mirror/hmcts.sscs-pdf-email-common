@@ -25,6 +25,21 @@ public class EmailAttachment {
         ALLOWED_CONTENT_TYPES.put("txt", "text/plain");
         ALLOWED_CONTENT_TYPES.put("xls", "application/vnd.ms-excel");
         ALLOWED_CONTENT_TYPES.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        ALLOWED_CONTENT_TYPES.put("bmp", "image/bmp");
+        ALLOWED_CONTENT_TYPES.put("tiff", "image/tiff");
+        ALLOWED_CONTENT_TYPES.put("tif", "image/tiff");
+        ALLOWED_CONTENT_TYPES.put("dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template");
+        ALLOWED_CONTENT_TYPES.put("xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template");
+        ALLOWED_CONTENT_TYPES.put("potx", "application/vnd.openxmlformats-officedocument.presentationml.template");
+        ALLOWED_CONTENT_TYPES.put("ppsx", "application/vnd.openxmlformats-officedocument.presentationml.slideshow");
+        ALLOWED_CONTENT_TYPES.put("xlt", "application/vnd.ms-excel");
+        ALLOWED_CONTENT_TYPES.put("dot", "application/msword");
+        ALLOWED_CONTENT_TYPES.put("xla", "application/vnd.ms-excel");
+        ALLOWED_CONTENT_TYPES.put("xlsb", "application/vnd.ms-excel.sheet.binary.macroEnabled.12");
+        ALLOWED_CONTENT_TYPES.put("pot", "application/vnd.ms-powerpoint");
+        ALLOWED_CONTENT_TYPES.put("pps", "application/vnd.ms-powerpoint");
+        ALLOWED_CONTENT_TYPES.put("ppa", "application/vnd.ms-powerpoint");
+
     }
 
     private final InputStreamSource data;
