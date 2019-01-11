@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
+import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 
 public class SscsGeneratePdfServiceTest {
 
@@ -24,12 +25,18 @@ public class SscsGeneratePdfServiceTest {
     @Mock
     private PDFServiceClient pdfServiceClient;
 
+    @Mock
+    private PdfStoreService pdfStoreService;
+
+    @Mock
+    private CcdService ccdService;
+
     SscsCaseData caseData = buildCaseData();
 
     @Before
     public void setup() {
         initMocks(this);
-        service = new SscsGeneratePdfService(pdfServiceClient);
+        service = new SscsGeneratePdfService(pdfServiceClient, pdfStoreService, ccdService);
     }
 
     @Test
