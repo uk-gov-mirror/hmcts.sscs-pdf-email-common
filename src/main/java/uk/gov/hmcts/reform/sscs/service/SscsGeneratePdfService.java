@@ -37,15 +37,7 @@ public class SscsGeneratePdfService {
         this.ccdService = ccdService;
     }
 
-    public byte[] generateAndSavePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, Map<String, String> notificationPlaceholders, IdamTokens idamTokens) {
-        byte[] generatedPdf = generatePdf(templatePath, sscsCaseData, caseDetailsId, notificationPlaceholders);
-
-        mergeDocIntoCcd("Direction_Notice.pdf", generatedPdf, caseDetailsId, sscsCaseData, idamTokens);
-
-        return generatedPdf;
-    }
-
-    protected byte[] generatePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, Map<String, String> notificationPlaceholders) {
+    public byte[] generatePdf(String templatePath, SscsCaseData sscsCaseData, Long caseDetailsId, Map<String, String> notificationPlaceholders) {
         byte[] template;
         try {
             template = getTemplate(templatePath);
@@ -86,8 +78,10 @@ public class SscsGeneratePdfService {
     public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
-        log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}", caseData.getAppeal().getAppellant().getIdentity().getNino(),
-            caseData.getAppeal().getBenefitType().getCode());
+        log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}",
+            caseData.getAppeal().getAppellant().getIdentity().getNino(),
+            caseData.getAppeal().getBenefitType().getCode()
+        );
 
         if (caseId == null) {
             log.info("caseId is empty - skipping step to update CCD with PDF");
