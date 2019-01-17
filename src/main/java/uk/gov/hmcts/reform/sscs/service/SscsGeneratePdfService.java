@@ -75,8 +75,8 @@ public class SscsGeneratePdfService {
         return IOUtils.toByteArray(in);
     }
 
-    public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
+    public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String comment) {
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, comment);
 
         log.info("Appeal PDF stored in DM for Nino - {} and benefit type {}",
             caseData.getAppeal().getAppellant().getIdentity().getNino(),

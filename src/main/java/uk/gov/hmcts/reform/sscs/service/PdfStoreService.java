@@ -47,4 +47,28 @@ public class PdfStoreService {
             return Collections.emptyList();
         }
     }
+
+    public List<SscsDocument> store(byte[] content, String fileName, String comment) {
+        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName).contentType(APPLICATION_PDF).build();
+        try {
+            UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
+            String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
+
+            DocumentLink documentLink = DocumentLink.builder().documentUrl(location).build();
+            SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
+                .documentFileName(fileName)
+                .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+                .documentLink(documentLink)
+                .documentEmailContent(comment)
+                .documentComment(comment)
+                .documentType("Other document")
+                .build();
+            SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
+
+            return Collections.singletonList(pdfDocument);
+        } catch (RestClientException e) {
+            log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
+            return Collections.emptyList();
+        }
+    }
 }
