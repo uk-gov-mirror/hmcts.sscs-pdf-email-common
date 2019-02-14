@@ -8,6 +8,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.hmcts.reform.sscs.exception.UnknownFileTypeException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmailAttachmentTest {
@@ -61,7 +62,7 @@ public class EmailAttachmentTest {
         EmailAttachment.file(data, "somefile.unknown");
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UnknownFileTypeException.class)
     public void noExtensionInFileName() {
         byte[] data = {};
 
