@@ -73,7 +73,7 @@ public class EmailAttachment {
         );
     }
 
-    protected static String getContentTypeForFileName(String fileName) {
+    public static String getContentTypeForFileName(String fileName) {
         String fileTypeExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 
         if (ALLOWED_CONTENT_TYPES.containsKey(fileTypeExtension)) {
