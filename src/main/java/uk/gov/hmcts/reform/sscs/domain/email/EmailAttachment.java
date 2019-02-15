@@ -5,11 +5,14 @@ import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
+import uk.gov.hmcts.reform.sscs.exception.UnknownFileTypeException;
 
 @Data
 @Builder
+@Slf4j
 public class EmailAttachment {
     private static final Map<String, String> ALLOWED_CONTENT_TYPES = new HashMap();
 
@@ -76,7 +79,8 @@ public class EmailAttachment {
         if (ALLOWED_CONTENT_TYPES.containsKey(fileTypeExtension)) {
             return ALLOWED_CONTENT_TYPES.get(fileTypeExtension);
         } else {
-            throw new RuntimeException("Evidence file type '" + fileTypeExtension + "' unknown");
+            String message = "Evidence file type '" + fileTypeExtension + "' unknown";
+            throw new UnknownFileTypeException(message, new Exception(message));
         }
     }
 }
