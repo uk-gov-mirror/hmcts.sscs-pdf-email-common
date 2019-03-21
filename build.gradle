@@ -7,6 +7,7 @@ plugins {
     id 'pmd'
     id 'jacoco'
     id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+    id 'org.springframework.boot' version '2.1.2.RELEASE'
     id 'maven'
 }
 
@@ -107,13 +108,21 @@ bintray {
     }
 }
 
+def versions = [
+    reformLogging: '4.0.0',
+    springBoot: springBoot.class.package.implementationVersion,
+]
+
 dependencies {
-    compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: '3.0.1'
+    compile group: 'uk.gov.hmcts.reform', name: 'java-logging', version: versions.reformLogging
+    compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: versions.reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'pdf-service-client', version: '5.0.0'
     compile group: 'uk.gov.hmcts.reform', name: 'sscs-common', version: '0.0.140'
     compile group: 'uk.gov.hmcts.reform', name: 'document-management-client', version: '4.0.1'
 
     compile group: 'org.springframework', name: 'spring-context-support', version: '5.1.1.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: versions.springBoot
     compile group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
 
     compile group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.9.2'
