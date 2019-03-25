@@ -32,7 +32,8 @@ public class DocumentManagementService {
         String pdfName = getPdfName(holder.getTemplate().getHmctsDocName(), caseData.getCcdCaseId());
 
         log.info("Adding document template {} to ccd for id {}", holder.getTemplate().getHmctsDocName(), caseData.getCcdCaseId());
-        ccdPdfService.mergeDocIntoCcd(pdfName, pdfBytes, Long.valueOf(caseData.getCcdCaseId()), caseData, idamService.getIdamTokens());
+        String description = "Uploaded " + pdfName + " into SSCS";
+        ccdPdfService.mergeDocIntoCcd(pdfName, pdfBytes, Long.valueOf(caseData.getCcdCaseId()), caseData, idamService.getIdamTokens(), description);
 
         return new Pdf(pdfBytes, pdfName);
     }
