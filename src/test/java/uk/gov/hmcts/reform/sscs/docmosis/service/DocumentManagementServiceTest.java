@@ -53,7 +53,7 @@ public class DocumentManagementServiceTest {
 
         Pdf result = documentManagementService.generateDocumentAndAddToCcd(holder, caseData);
 
-        verify(ccdPdfService).mergeDocIntoCcd(docName, pdfBytes, 12345678L, caseData, tokens);
+        verify(ccdPdfService).mergeDocIntoCcd(docName, pdfBytes, 12345678L, caseData, tokens,  "Uploaded " + docName + " into SSCS");
 
         assertEquals("Pdf should be as expected", new Pdf(pdfBytes, docName), result);
     }
