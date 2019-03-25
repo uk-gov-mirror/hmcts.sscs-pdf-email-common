@@ -45,7 +45,7 @@ public class DocmosisPdfGenerationServiceTest {
     public void givenADocumentHolder_thenGenerateAPdf() {
         doReturn(createResponseEntity()).when(restTemplate).postForEntity(anyString(), any(), eq(byte[].class));
 
-        byte[] result = pdfGenerationService.generatePdf(DocumentHolder.builder().template(Template.DL6).placeholders(PLACEHOLDERS).build());
+        byte[] result = pdfGenerationService.generatePdf(DocumentHolder.builder().template(new Template("bla", "bla2")).placeholders(PLACEHOLDERS).build());
         assertThat(result, is(notNullValue()));
         assertThat(result, is(equalTo(FILE_CONTENT.getBytes())));
     }
@@ -61,6 +61,6 @@ public class DocmosisPdfGenerationServiceTest {
 
     @Test(expected = NullPointerException.class)
     public void emptyPlaceholders_thenThrowIllegalArgumentException() {
-        pdfGenerationService.generatePdf(DocumentHolder.builder().template(Template.DL6).placeholders(null).build());
+        pdfGenerationService.generatePdf(DocumentHolder.builder().template(new Template("bla", "bla2")).placeholders(null).build());
     }
 }

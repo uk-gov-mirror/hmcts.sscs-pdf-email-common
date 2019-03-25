@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static uk.gov.hmcts.reform.sscs.docmosis.domain.Template.DL6;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +13,7 @@ import org.mockito.Mock;
 import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.DocumentHolder;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
+import uk.gov.hmcts.reform.sscs.docmosis.domain.Template;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 import uk.gov.hmcts.reform.sscs.service.CcdPdfService;
@@ -41,7 +41,7 @@ public class DocumentManagementServiceTest {
     public void givenACaseDataAndTemplateData_thenCreateAPdfAndAddToCaseInCcd() {
         Map<String, Object> placeholders = new HashMap<>();
         placeholders.put("Test", "Value");
-        DocumentHolder holder = DocumentHolder.builder().placeholders(placeholders).template(DL6).build();
+        DocumentHolder holder = DocumentHolder.builder().placeholders(placeholders).template(new Template("bla", "DL6")).build();
         byte[] pdfBytes = {1};
         String docName = "DL6-12345678.pdf";
         IdamTokens tokens = IdamTokens.builder().build();
@@ -53,7 +53,7 @@ public class DocumentManagementServiceTest {
 
         Pdf result = documentManagementService.generateDocumentAndAddToCcd(holder, caseData);
 
-        verify(ccdPdfService).mergeDocIntoCcd(docName, pdfBytes, 12345678L, caseData, tokens);
+        verify(ccdPdfService).mergeDocIntoCcd(docName, pdfBytes, 12345678L, caseData, tokens,  "Uploaded " + docName + " into SSCS");
 
         assertEquals("Pdf should be as expected", new Pdf(pdfBytes, docName), result);
     }
