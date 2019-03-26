@@ -108,7 +108,7 @@ bintray {
 }
 
 def versions = [
-    reformLogging: '3.0.1'
+    reformLogging: '5.0.1'
 ]
 
 dependencies {
