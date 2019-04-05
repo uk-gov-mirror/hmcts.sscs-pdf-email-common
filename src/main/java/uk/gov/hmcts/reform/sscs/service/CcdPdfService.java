@@ -22,15 +22,15 @@ public class CcdPdfService {
     @Autowired
     private CcdService ccdService;
 
-    public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
-        updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS");
+    public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
+        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS");
     }
 
-    public void mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
-        updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, description);
+    public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
+        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, description);
     }
 
-    private void updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
+    private SscsCaseData updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
 
         log.info("Case {} PDF stored in DM for benefit type {}", caseId,
@@ -41,8 +41,10 @@ public class CcdPdfService {
         } else {
             List<SscsDocument> allDocuments = combineEvidenceAndAppealPdf(caseData, pdfDocuments);
             SscsCaseData caseDataWithAppealPdf = caseData.toBuilder().sscsDocument(allDocuments).build();
-            updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens, description);
+            SscsCaseDetails caseDetails = updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens, description);
+            return caseDetails.getData();
         }
+        return caseData;
     }
 
     private List<SscsDocument> combineEvidenceAndAppealPdf(SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
