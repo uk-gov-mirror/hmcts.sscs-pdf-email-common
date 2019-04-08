@@ -40,8 +40,8 @@ public class CcdPdfService {
             log.info("caseId is empty - skipping step to update CCD with PDF");
         } else {
             List<SscsDocument> allDocuments = combineEvidenceAndAppealPdf(caseData, pdfDocuments);
-            SscsCaseData caseDataWithAppealPdf = caseData.toBuilder().sscsDocument(allDocuments).build();
-            SscsCaseDetails caseDetails = updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens, description);
+            caseData.setSscsDocument(allDocuments);
+            SscsCaseDetails caseDetails = updateCaseInCcd(caseData, caseId, "uploadDocument", idamTokens, description);
             return caseDetails.getData();
         }
         return caseData;
