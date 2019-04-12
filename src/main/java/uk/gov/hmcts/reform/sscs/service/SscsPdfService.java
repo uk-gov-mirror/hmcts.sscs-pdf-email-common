@@ -45,7 +45,7 @@ public class SscsPdfService {
         this.ccdPdfService = ccdPdfService;
     }
 
-    public byte[] generateAndSendPdf(SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens) {
+    public byte[] generateAndSendPdf(SscsCaseData sscsCaseData, Long caseDetailsId, IdamTokens idamTokens, String documentType) {
         byte[] pdf = generatePdf(sscsCaseData, caseDetailsId);
 
         log.info("Case {} PDF successfully created for benefit type {}",
@@ -54,7 +54,7 @@ public class SscsPdfService {
 
         sendPdfByEmail(sscsCaseData.getAppeal(), pdf, caseDetailsId);
 
-        prepareCcdCaseForPdf(caseDetailsId, sscsCaseData, pdf, idamTokens);
+        prepareCcdCaseForPdf(caseDetailsId, sscsCaseData, pdf, idamTokens, documentType);
 
         return pdf;
     }
@@ -86,9 +86,9 @@ public class SscsPdfService {
         }
     }
 
-    private void prepareCcdCaseForPdf(Long caseId, SscsCaseData caseData, byte[] pdf, IdamTokens idamTokens) {
+    private void prepareCcdCaseForPdf(Long caseId, SscsCaseData caseData, byte[] pdf, IdamTokens idamTokens, String documentType) {
         String fileName = emailService.generateUniqueEmailId(caseData.getAppeal().getAppellant()) + ".pdf";
-        ccdPdfService.mergeDocIntoCcd(fileName, pdf, caseId, caseData, idamTokens);
+        ccdPdfService.mergeDocIntoCcd(fileName, pdf, caseId, caseData, idamTokens, documentType);
     }
 
     private void sendPdfByEmail(Appeal appeal, byte[] pdf, Long caseDetailsId) {

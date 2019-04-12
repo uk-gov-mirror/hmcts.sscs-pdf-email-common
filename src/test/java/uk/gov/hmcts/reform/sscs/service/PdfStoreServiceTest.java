@@ -38,7 +38,7 @@ public class PdfStoreServiceTest {
         UploadResponse uploadResponse = createUploadResponse();
         when(evidenceManagementService.upload(files, SSCS_USER)).thenReturn(uploadResponse);
 
-        List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename);
+        List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename, "appellantEvidence");
 
         assertThat(documents.size(), is(1));
         SscsDocumentDetails value = documents.get(0).getValue();
@@ -49,7 +49,7 @@ public class PdfStoreServiceTest {
     @Test
     public void cannotConnectToDocumentStore() {
         when(evidenceManagementService.upload(files, SSCS_USER)).thenThrow(new RestClientException("Cannot connect"));
-        List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename);
+        List<SscsDocument> documents = new PdfStoreService(evidenceManagementService).store(content, filename, "appellantEvidence");
 
         assertThat(documents.size(), is(0));
     }
