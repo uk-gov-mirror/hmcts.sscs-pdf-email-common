@@ -47,11 +47,11 @@ public class SscsPdfServiceTest {
         byte[] expected = {};
         given(pdfServiceClient.generateFromHtml(any(byte[].class), any())).willReturn(expected);
 
-        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build(), "appellantEvidence");
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
-        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any());
+        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -61,11 +61,11 @@ public class SscsPdfServiceTest {
 
         caseData.getAppeal().setHearingOptions(HearingOptions.builder().wantsToAttend("No").build());
 
-        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build(), "appellantEvidence");
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
-        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any());
+        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -75,10 +75,10 @@ public class SscsPdfServiceTest {
 
         caseData.getAppeal().setRep(Representative.builder().hasRepresentative("No").build());
 
-        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build());
+        service.generateAndSendPdf(caseData, 1L, IdamTokens.builder().build(), "appellantEvidence");
 
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(emailService).sendEmail(any());
-        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any());
+        verify(ccdPdfService).mergeDocIntoCcd(any(), any(), any(), any(), any(), any());
     }
 }
