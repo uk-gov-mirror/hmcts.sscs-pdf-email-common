@@ -20,4 +20,6 @@ public class PdfDocumentRequest {
     private final String outputName;
     @JsonProperty(value = "data", required = true)
     private final Map<String, Object> data;
+    @JsonProperty(value = "pdfArchiveMode")
+    private final boolean pdfArchiveMode;
 }
