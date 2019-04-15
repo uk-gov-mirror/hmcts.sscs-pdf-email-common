@@ -10,6 +10,8 @@ public class DocumentHolder {
 
     private final Template template;
     private final Map<String, Object> placeholders;
+    private boolean pdfArchiveMode;
+
 
 }
 
