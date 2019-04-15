@@ -11,7 +11,7 @@ To build run
 ```
 This will create a jar file in the projects build libs directory.
 
-To depend on this in other projects run
+To depend on this in other projects run:
 
 ```bash
 ./gradlew install
