@@ -41,9 +41,9 @@ public class DocumentManagementServiceTest {
     public void givenACaseDataAndTemplateData_thenCreateAPdfAndAddToCaseInCcd() {
         Map<String, Object> placeholders = new HashMap<>();
         placeholders.put("Test", "Value");
-        DocumentHolder holder = DocumentHolder.builder().placeholders(placeholders).template(new Template("bla", "DL6")).build();
+        DocumentHolder holder = DocumentHolder.builder().placeholders(placeholders).template(new Template("bla", "dl6")).build();
         byte[] pdfBytes = {1};
-        String docName = "DL6-12345678.pdf";
+        String docName = "dl6-12345678.pdf";
         IdamTokens tokens = IdamTokens.builder().build();
 
         given(pdfGenerationService.generatePdf(holder)).willReturn(pdfBytes);
@@ -53,7 +53,7 @@ public class DocumentManagementServiceTest {
 
         Pdf result = documentManagementService.generateDocumentAndAddToCcd(holder, caseData);
 
-        verify(ccdPdfService).mergeDocIntoCcd(docName, pdfBytes, 12345678L, caseData, tokens,  "Uploaded " + docName + " into SSCS");
+        verify(ccdPdfService).mergeDocIntoCcd(docName, pdfBytes, 12345678L, caseData, tokens,  "Uploaded " + docName + " into SSCS", holder.getTemplate().getHmctsDocName());
 
         assertEquals("Pdf should be as expected", new Pdf(pdfBytes, docName), result);
     }

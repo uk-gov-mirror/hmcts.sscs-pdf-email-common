@@ -22,16 +22,21 @@ public class CcdPdfService {
     @Autowired
     private CcdService ccdService;
 
+    // can be removed once COR team decide what to pass into the documentType field
     public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens) {
-        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS");
+        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS", null);
     }
 
-    public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
-        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, description);
+    public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String documentType) {
+        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, "Uploaded document into SSCS", documentType);
     }
 
-    private SscsCaseData updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description) {
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName);
+    public SscsCaseData mergeDocIntoCcd(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description, String documentType) {
+        return updateAndMerge(fileName, pdf, caseId, caseData, idamTokens, description, documentType);
+    }
+
+    private SscsCaseData updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, IdamTokens idamTokens, String description, String documentType) {
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, documentType);
 
         log.info("Case {} PDF stored in DM for benefit type {}", caseId,
                 caseData.getAppeal().getBenefitType().getCode());
@@ -40,8 +45,8 @@ public class CcdPdfService {
             log.info("caseId is empty - skipping step to update CCD with PDF");
         } else {
             List<SscsDocument> allDocuments = combineEvidenceAndAppealPdf(caseData, pdfDocuments);
-            SscsCaseData caseDataWithAppealPdf = caseData.toBuilder().sscsDocument(allDocuments).build();
-            SscsCaseDetails caseDetails = updateCaseInCcd(caseDataWithAppealPdf, caseId, "uploadDocument", idamTokens, description);
+            caseData.setSscsDocument(allDocuments);
+            SscsCaseDetails caseDetails = updateCaseInCcd(caseData, caseId, "uploadDocument", idamTokens, description);
             return caseDetails.getData();
         }
         return caseData;

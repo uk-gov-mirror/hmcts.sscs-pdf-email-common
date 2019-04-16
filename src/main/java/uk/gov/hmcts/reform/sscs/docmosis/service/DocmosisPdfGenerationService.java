@@ -47,18 +47,19 @@ public class DocmosisPdfGenerationService implements PdfGenerationService {
 
         try {
             ResponseEntity<byte[]> response =
-                restTemplate.postForEntity(pdfServiceEndpoint, request(templateName, documentHolder.getPlaceholders()), byte[].class);
+                restTemplate.postForEntity(pdfServiceEndpoint, request(templateName, documentHolder.getPlaceholders(), documentHolder.isPdfArchiveMode()), byte[].class);
             return response.getBody();
         } catch (Exception e) {
             throw new PdfGenerationException("Failed to request PDF from REST endpoint " + e.getMessage(), e);
         }
     }
 
-    private PdfDocumentRequest request(String templateName, Map<String, Object> placeholders) {
+    private PdfDocumentRequest request(String templateName, Map<String, Object> placeholders, boolean pdfArchiveMode) {
         return PdfDocumentRequest.builder()
             .accessKey(pdfServiceAccessKey)
             .templateName(templateName)
             .outputName("result.pdf")
-            .data(placeholders).build();
+            .data(placeholders)
+            .pdfArchiveMode(pdfArchiveMode).build();
     }
 }
