@@ -91,15 +91,17 @@
       <div class="grid-row main-content">
         <p>{{ PdfWrapper.currentDate | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") | default('Not applicable') }}</p>
 
-        <h1 class="heading-large">Your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal</h1>
+        <h1 class="heading-large">{{ appellant_name }}'s {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} appeal</h1>
 
-        <p>Appeal reference number: {{ appeal_ref }}</p>
+        <p>Dear {{ rep_name }}</p>
 
-        <p>Dear {{ letter_name }}</p>
+        <p>A tribunal judge has reviewed {{ appellant_name }}'s {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} appeal. They have written some instructions in a 'Directions Notice', which is enclosed with this letter.</p>
 
-        <p>A tribunal judge has reviewed your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal and decided that it cannot continue. The judge has explained why in the attached 'Directions Notice'. Your appeal is now closed.</p>
+        <p>{{ appellant_name }} should follow any of the instructions which are directed towards them.</p>
 
-        <p>You can write to the tribunal at the address below if you think there has been a mistake. You should read the enclosed Directions Notice and write what you disagree with and why. Make sure you include your appeal reference number: {{ appeal_ref }}</p>
+        <h2 class="heading-medium">Sending the information to the tribunal</h2>
+
+        <p>If any information has been requested then it should be posted to the address below. Make sure it's clearly marked with the appeal reference number: {{ appeal_ref }}</p>
 
         <p>{{ rpc_regional_office_name }}<br />
           {{ rpc_support_centre_name }}<br />

@@ -81,41 +81,42 @@
     <div>
       <div class="grid-row address">
         <p>
-          {% if letter_address_line_1 is defined %} {{ letter_address_line_1 }}<br></br> {% endif %}
-          {% if letter_address_line_2 is defined %} {{ letter_address_line_2 }}<br></br> {% endif %}
-          {% if letter_address_line_3 is defined %} {{ letter_address_line_3 }}<br></br> {% endif %}
-          {% if letter_address_line_4 is defined %} {{ letter_address_line_4 }}<br></br> {% endif %}
+          {% if letter_address_line_1 is defined %} {{ letter_address_line_1 }}<br /> {% endif %}
+          {% if letter_address_line_2 is defined %} {{ letter_address_line_2 }}<br /> {% endif %}
+          {% if letter_address_line_3 is defined %} {{ letter_address_line_3 }}<br /> {% endif %}
+          {% if letter_address_line_4 is defined %} {{ letter_address_line_4 }}<br /> {% endif %}
           {% if letter_address_postcode is defined %} {{ letter_address_postcode }} {% endif %}
         </p>
       </div>
       <div class="grid-row main-content">
         <p>{{ PdfWrapper.currentDate | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") | default('Not applicable') }}</p>
 
-        <h1 class="heading-large">Important message about your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} appeal</h1>
+        <h1 class="heading-large">{{ appellant_name }}'s {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} appeal</h1>
 
         <p>Dear {{ letter_name }}</p>
 
-        <p>A tribunal judge has reviewed your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal. They have written some instructions which they would like you to follow. These instructions are written in a ‘directions notice’, which is enclosed within this letter. </p>
+        <p>A tribunal judge has reviewed your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal. They have written some instructions which they want you to follow. These instructions are written in a ‘Directions Notice’, which is enclosed with this letter.</p>
 
-        <p>Please read the ‘directions notice’ and follow any instructions which are directed towards the ‘appellant’. You are the appellant as the person who is making the appeal.</p>
+        <h2 class="heading-medium">What to do next</h2>
 
-        <p>If the judge has asked you for more information then send it to the address at the top of this letter. Make sure it’s clearly marked with your National Insurance number.</p>
+        <p>Read the Directions Notice enclosed. Follow any instructions which are directed towards the ‘appellant’. You are the appellant as the person who is making the appeal. If there are only instructions directed towards ((first_tier_agency_acronym)) then you do not need to do anything.</p>
 
-        <h2 class="heading-medium">Sending information to the tribunal</h2>
-        <p>You can either send it by post or provide it over the phone, by calling the number at the bottom of the letter. </p>
+        <p>If you are the appointee appealing on behalf of someone else then follow any instructions directed towards you.</p>
 
-        <p>If you want to send it by post then send it to the address below.  Make sure it's clearly marked with your National Insurance number.</p>
+        <h2 class="heading-medium">Sending the information to the tribunal</h2>
 
-        <p>{{ rpc_regional_office_name }}<br></br>
-          {{ rpc_support_centre_name }}<br></br>
-          {{ rpc_address_line }}<br></br>
-          {{ rpc_town }}<br></br>
-          {{ rpc_county }}<br></br>
+        <p>If the judge has asked you to provide more information then send it to the address below. Make sure it's clearly marked with your appeal reference number: {{ appeal_ref }}</p>
+
+        <p>{{ rpc_regional_office_name }}<br />
+          {{ rpc_support_centre_name }}<br />
+          {{ rpc_address_line }}<br />
+          {{ rpc_town }}<br />
+          {{ rpc_county }}<br />
           {{ rpc_postcode }}</p>
 
 
-        <p>{{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} Benefit Appeals<br></br>
-          HM Courts and Tribunals Service <br></br>
+        <p>{{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} Benefit Appeals<br />
+          HM Courts and Tribunals Service <br />
           Telephone: {{ rpc_phone_number }}</p>
       </div>
     </div>
