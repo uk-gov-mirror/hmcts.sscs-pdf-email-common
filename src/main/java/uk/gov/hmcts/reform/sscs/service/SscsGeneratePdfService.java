@@ -41,14 +41,8 @@ public class SscsGeneratePdfService {
             .currentDate(LocalDate.now())
             .build();
 
-        Map<String, Object> placeholders = new HashMap<>();
+        Map<String, Object> placeholders = new HashMap<>(notificationPlaceholders);
         placeholders.put("PdfWrapper", pdfWrapper);
-        placeholders.put(LETTER_ADDRESS_LINE_1, notificationPlaceholders.get(LETTER_ADDRESS_LINE_1));
-        placeholders.put(LETTER_ADDRESS_LINE_2, notificationPlaceholders.get(LETTER_ADDRESS_LINE_2));
-        placeholders.put(LETTER_ADDRESS_LINE_3, notificationPlaceholders.get(LETTER_ADDRESS_LINE_3));
-        placeholders.put(LETTER_ADDRESS_LINE_4, notificationPlaceholders.get(LETTER_ADDRESS_LINE_4));
-        placeholders.put(LETTER_ADDRESS_POSTCODE, notificationPlaceholders.get(LETTER_ADDRESS_POSTCODE));
-        placeholders.put(LETTER_NAME, notificationPlaceholders.get(LETTER_NAME));
         placeholders.put(RPC + REGIONAL_OFFICE_NAME_LITERAL, notificationPlaceholders.get(REGIONAL_OFFICE_NAME_LITERAL));
         placeholders.put(RPC + SUPPORT_CENTRE_NAME_LITERAL, notificationPlaceholders.get(SUPPORT_CENTRE_NAME_LITERAL));
         placeholders.put(RPC + ADDRESS_LINE_LITERAL, notificationPlaceholders.get(ADDRESS_LINE_LITERAL));
