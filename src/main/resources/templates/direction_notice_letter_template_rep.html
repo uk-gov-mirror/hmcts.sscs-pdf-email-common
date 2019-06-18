@@ -95,20 +95,19 @@
 
         <p>Dear {{ letter_name }}</p>
 
-        <p>A tribunal judge has reviewed {{ appellant_name }}'s {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} appeal. They have written some instructions in a 'Directions Notice', which is enclosed with this letter.</p>
+        <p>A tribunal has reviewed {{ appellant_name }}'s {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal. They have written some instructions in a 'Directions Notice', which is enclosed with this letter.</p>
 
-        <p>{{ appellant_name }} should follow any of the instructions which are directed towards them.</p>
+        <p>{{ appellant_name }} should follow any of the instructions which are directed towards them or the 'appellant'</p>
 
         <h2 class="heading-medium">Sending the information to the tribunal</h2>
 
         <p>If any information has been requested then it should be posted to the address below. Make sure it's clearly marked with the appeal reference number: {{ appeal_ref }}</p>
 
-        <p>{{ rpc_regional_office_name }}<br />
-          {{ rpc_support_centre_name }}<br />
-          {{ rpc_address_line }}<br />
-          {{ rpc_town }}<br />
-          {{ rpc_county }}<br />
-          {{ rpc_postcode }}</p>
+        <p>HMCTS<br />
+          SSCS Appeals<br />
+          PO Box 1203<br />
+          Bradford<br />
+          BD1 9WP</p>
 
 
         <p>{{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} Benefit Appeals<br />
