@@ -97,17 +97,9 @@
 
         <p>Dear {{ letter_name }}</p>
 
-        <p>A tribunal judge has reviewed your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal and decided that it cannot continue. The judge has explained why in the attached 'Directions Notice'. Your appeal is now closed.</p>
+        <p>A tribunal has reviewed your {{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} benefit appeal and decided that it cannot continue. The Tribunal has explained why in the 'Direction Notice' enclosed with this letter.</p>
 
-        <p>You can write to the tribunal at the address below if you think there has been a mistake. You should read the enclosed Directions Notice and write what you disagree with and why. Make sure you include your appeal reference number: {{ appeal_ref }}</p>
-
-        <p>{{ rpc_regional_office_name }}<br />
-          {{ rpc_support_centre_name }}<br />
-          {{ rpc_address_line }}<br />
-          {{ rpc_town }}<br />
-          {{ rpc_county }}<br />
-          {{ rpc_postcode }}</p>
-
+        <p>The Decision Notice explains what you can do next if you disagree with the decision.</p>
 
         <p>{{ PdfWrapper.sscsCaseData.appeal.benefitType.code }} Benefit Appeals<br />
           HM Courts and Tribunals Service <br />
