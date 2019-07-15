@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.sscs.service;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
@@ -38,14 +40,24 @@ public class EmailService {
             mimeMessageHelper.setSubject(email.getSubject());
             mimeMessageHelper.setText(email.getMessage());
 
+            long attachmentsSize = 0;
             if (email.hasAttachments()) {
                 for (EmailAttachment emailAttachment : email.getAttachments()) {
+                    InputStreamSource data = emailAttachment.getData();
+                    if (data instanceof ByteArrayResource) {
+                        attachmentsSize += ((ByteArrayResource) data).contentLength();
+                    } else {
+                        log.error("Cannot calculate attachment size as not a ByteArrayResource when expected to be.");
+                    }
                     mimeMessageHelper.addAttachment(emailAttachment.getFilename(),
                             emailAttachment.getData(),
                             emailAttachment.getContentType());
                 }
             }
 
+            log.info("Sending email with subject [" + email.getSubject() + "] " +
+                    "of [" + message.getSize() + "] bytes " +
+                    "with [" + attachmentsSize + "] bytes of attachments.");
             javaMailSender.send(message);
         } catch (Exception e) {
             log.error("Error while sending email {} ", e);
