@@ -10,6 +10,10 @@ plugins {
     id 'maven'
 }
 
+jacoco {
+    toolVersion = "0.8.2"
+}
+
 def buildNumber = System.getenv("TRAVIS_BRANCH") ?: "DEV-SNAPSHOT"
 
 group 'uk.gov.hmcts.reform'
