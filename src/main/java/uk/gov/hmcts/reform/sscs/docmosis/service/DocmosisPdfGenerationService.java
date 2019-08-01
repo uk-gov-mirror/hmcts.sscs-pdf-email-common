@@ -6,7 +6,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.DocumentHolder;
@@ -16,10 +15,8 @@ import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 @Slf4j
 public class DocmosisPdfGenerationService implements PdfGenerationService {
 
-    @Value("${service.pdf-service.uri}")
     private String pdfServiceEndpoint;
 
-    @Value("${service.pdf-service.accessKey}")
     private String pdfServiceAccessKey;
 
     private RestTemplate restTemplate;
@@ -33,10 +30,6 @@ public class DocmosisPdfGenerationService implements PdfGenerationService {
         this.pdfServiceEndpoint = pdfServiceEndpoint;
         this.pdfServiceAccessKey = pdfServiceAccessKey;
         this.restTemplate = restTemplate;
-    }
-
-    public DocmosisPdfGenerationService() {
-        this.restTemplate = new RestTemplate();
     }
 
     @Override
