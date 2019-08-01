@@ -1,14 +1,15 @@
 package uk.gov.hmcts.reform.sscs.docmosis.config;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Data
-@Component
+@Configuration
 @ConfigurationProperties(prefix = "document.pdf")
+@Getter
+@Setter
 public class PdfDocumentConfig {
-
     private String hmctsImgKey;
     private String hmctsImgVal;
 }
