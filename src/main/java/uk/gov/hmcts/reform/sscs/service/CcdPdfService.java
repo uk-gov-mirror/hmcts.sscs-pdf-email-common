@@ -62,13 +62,14 @@ public class CcdPdfService {
 
         byte[] template;
         try {
-            template = getTemplate("/templates/sent_email.html");
+            template = getSentEmailTemplate();
         } catch (IOException e) {
             throw new PdfGenerationException("Error getting template", e);
         }
 
         byte[] pdf = pdfServiceClient.generateFromHtml(template, placeholders);
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, "email.pdf", correspondence.getValue().getCorrespondenceType().getValue());
+        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
         final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
                 correspondence.toBuilder().value(correspondence.getValue().toBuilder()
                         .documentLink(doc.getValue().getDocumentLink())
@@ -123,8 +124,8 @@ public class CcdPdfService {
         }
     }
 
-    private byte[] getTemplate(String templatePath) throws IOException {
-        InputStream in = getClass().getResourceAsStream(templatePath);
+    private byte[] getSentEmailTemplate() throws IOException {
+        InputStream in = getClass().getResourceAsStream("/templates/sent_email.html");
         return IOUtils.toByteArray(in);
     }
 
