@@ -74,19 +74,9 @@ public class CcdPdfServiceTest {
     @Test
     public void mergeCorrespondenceIntoCcd() {
 
-        Correspondence correspondence = Correspondence.builder().value(
-                CorrespondenceDetails.builder()
-                        .sentOn("20 04 2019 11:00:00")
-                        .from("from")
-                        .to("to")
-                        .body("the body")
-                        .subject("a subject")
-                        .eventType("event")
-                        .correspondenceType(CorrespondenceType.Email)
-                .build()).build();
         List<SscsDocument> sscsDocuments = new ArrayList<>();
-        sscsDocuments.add(SscsDocument.builder().value(SscsDocumentDetails.builder().
-                documentFileName("Test.jpg")
+        sscsDocuments.add(SscsDocument.builder().value(SscsDocumentDetails.builder()
+                .documentFileName("Test.jpg")
                 .documentLink(DocumentLink.builder()
                         .documentUrl("aUrl")
                         .documentBinaryUrl("aUrl/binary")
@@ -97,6 +87,16 @@ public class CcdPdfServiceTest {
         when(idamService.getIdamTokens()).thenReturn(IdamTokens.builder().build());
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any())).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         when(pdfServiceClient.generateFromHtml(any(), any())).thenReturn("bytes".getBytes());
+        Correspondence correspondence = Correspondence.builder().value(
+                CorrespondenceDetails.builder()
+                        .sentOn("20 04 2019 11:00:00")
+                        .from("from")
+                        .to("to")
+                        .body("the body")
+                        .subject("a subject")
+                        .eventType("event")
+                        .correspondenceType(CorrespondenceType.Email)
+                        .build()).build();
 
         service.mergeCorrespondenceIntoCcd(caseData, correspondence);
         verify(pdfServiceClient).generateFromHtml(any(), any());
