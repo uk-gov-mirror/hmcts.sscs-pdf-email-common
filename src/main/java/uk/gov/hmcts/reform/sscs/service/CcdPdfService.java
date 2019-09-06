@@ -2,10 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -79,6 +76,7 @@ public class CcdPdfService {
         List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
         List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
         allCorrespondence.addAll(correspondences);
+        allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setCorrespondence(allCorrespondence);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
