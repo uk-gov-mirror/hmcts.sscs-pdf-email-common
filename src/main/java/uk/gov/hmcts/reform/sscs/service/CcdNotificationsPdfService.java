@@ -84,7 +84,7 @@ public class CcdNotificationsPdfService {
     }
 
     private byte[] getSentEmailTemplate() throws IOException {
-        InputStream in = getClass().getResourceAsStream("/templates/sent_email.html");
+        InputStream in = getClass().getResourceAsStream("/templates/sent_notification.html");
         return IOUtils.toByteArray(in);
     }
 
