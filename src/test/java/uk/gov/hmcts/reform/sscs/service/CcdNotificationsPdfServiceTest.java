@@ -37,16 +37,12 @@ public class CcdNotificationsPdfServiceTest {
     IdamService idamService;
 
     SscsCaseData caseData = buildCaseData().toBuilder().ccdCaseId("123").build();
+    private List<SscsDocument> sscsDocuments;
 
     @Before
     public void setup() {
         initMocks(this);
-    }
-
-    @Test
-    public void mergeCorrespondenceIntoCcd() {
-
-        List<SscsDocument> sscsDocuments = new ArrayList<>();
+        sscsDocuments = new ArrayList<>();
         sscsDocuments.add(SscsDocument.builder().value(SscsDocumentDetails.builder()
                 .documentFileName("Test.jpg")
                 .documentLink(DocumentLink.builder()
@@ -55,10 +51,16 @@ public class CcdNotificationsPdfServiceTest {
                         .build())
                 .build())
                 .build());
+
         when(pdfStoreService.store(any(), any(), eq("dl6"))).thenReturn(sscsDocuments);
         when(idamService.getIdamTokens()).thenReturn(IdamTokens.builder().build());
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any())).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         when(pdfServiceClient.generateFromHtml(any(), any())).thenReturn("bytes".getBytes());
+    }
+
+    @Test
+    public void mergeCorrespondenceIntoCcd() {
+
         Correspondence correspondence = Correspondence.builder().value(
                 CorrespondenceDetails.builder()
                         .sentOn("20 04 2019 11:00:00")
@@ -72,6 +74,27 @@ public class CcdNotificationsPdfServiceTest {
 
         service.mergeCorrespondenceIntoCcd(caseData, correspondence);
         verify(pdfServiceClient).generateFromHtml(any(), any());
+        verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
+        verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("added correspondence"), any());
+    }
+
+    @Test
+    public void mergeLetterCorrespondenceIntoCcd() {
+        byte[] bytes = "String".getBytes();
+        Long caseId = Long.valueOf(caseData.getCcdCaseId());
+        Correspondence correspondence = Correspondence.builder().value(
+                CorrespondenceDetails.builder()
+                        .sentOn("20 04 2019 11:00:00")
+                        .from("from")
+                        .to("to")
+                        .subject("a subject")
+                        .eventType("event")
+                        .correspondenceType(CorrespondenceType.Email)
+                        .build()).build();
+
+
+        when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
+        service.mergeLetterCorrespondenceIntoCcd(bytes, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
         verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("added correspondence"), any());
     }
