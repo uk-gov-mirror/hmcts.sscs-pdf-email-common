@@ -72,6 +72,30 @@ public class CcdNotificationsPdfService {
         return caseDetails.getData();
     }
 
+    public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
+        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
+        final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
+                correspondence.toBuilder().value(correspondence.getValue().toBuilder()
+                        .documentLink(doc.getValue().getDocumentLink())
+                        .build()).build()
+        ).collect(Collectors.toList());
+
+        IdamTokens idamTokens = idamService.getIdamTokens();
+        final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
+        final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
+
+        List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
+        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
+        allCorrespondence.addAll(correspondences);
+        allCorrespondence.sort(Comparator.reverseOrder());
+        sscsCaseData.setCorrespondence(allCorrespondence);
+
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), "uploadDocument", idamTokens, "added correspondence");
+
+        return caseDetails.getData();
+    }
+
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
         try {
