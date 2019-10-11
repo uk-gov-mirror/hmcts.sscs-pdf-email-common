@@ -312,11 +312,11 @@
         {% for reason in PdfWrapper.sscsCaseData.appeal.appealReasons.reasons %}
         <div>
             <dt class="cya-question">What you disagree with</dt>
-            <dd class="cya-answer">{{ reason.value.reason }}</dd>
+            <dd class="cya-answer">{{ reason.value.description }}</dd>
         </div>
         <div>
             <dt class="cya-question">Why you disagree with it</dt>
-            <dd class="cya-answer">{{ reason.value.description }}</dd>
+            <dd class="cya-answer">{{ reason.value.reason }}</dd>
         </div>
         {% endfor %}
         <div>
