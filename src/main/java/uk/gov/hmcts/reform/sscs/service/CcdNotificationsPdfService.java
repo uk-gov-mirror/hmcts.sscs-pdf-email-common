@@ -36,7 +36,7 @@ public class CcdNotificationsPdfService {
     private IdamService idamService;
 
 
-    public SscsCaseData mergeCorrespondenceIntoCcd(SscsCaseData sscsCaseData, Correspondence correspondence) {
+    public SscsCaseData mergeCorrespondenceIntoCcd(Long ccdCaseId, Correspondence correspondence) {
         Map<String, Object> placeholders = new HashMap<>();
         placeholders.put("body", correspondence.getValue().getBody());
         placeholders.put("subject", correspondence.getValue().getSubject());
@@ -60,14 +60,17 @@ public class CcdNotificationsPdfService {
                         .build()).build()
         ).collect(Collectors.toList());
 
-        List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
+        IdamTokens idamTokens = idamService.getIdamTokens();
+        final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
+        final SscsCaseData caseData = sscsCaseDetails.getData();
+
+        List<Correspondence> existingCorrespondence = caseData.getCorrespondence() == null ? new ArrayList<>() : caseData.getCorrespondence();
         List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
         allCorrespondence.addAll(correspondences);
         allCorrespondence.sort(Comparator.reverseOrder());
-        sscsCaseData.setCorrespondence(allCorrespondence);
+        caseData.setCorrespondence(allCorrespondence);
 
-        IdamTokens idamTokens = idamService.getIdamTokens();
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), "uploadDocument", idamTokens, "added correspondence");
+        SscsCaseDetails caseDetails = updateCaseInCcd(caseData, ccdCaseId, "uploadDocument", idamTokens, "added correspondence");
 
         return caseDetails.getData();
     }

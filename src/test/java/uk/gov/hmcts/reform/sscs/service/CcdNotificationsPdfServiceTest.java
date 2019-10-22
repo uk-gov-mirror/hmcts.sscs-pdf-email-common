@@ -52,6 +52,7 @@ public class CcdNotificationsPdfServiceTest {
                 .build())
                 .build());
 
+        when(ccdService.getByCaseId(eq(Long.valueOf(caseData.getCcdCaseId())), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         when(pdfStoreService.store(any(), any(), eq("dl6"))).thenReturn(sscsDocuments);
         when(idamService.getIdamTokens()).thenReturn(IdamTokens.builder().build());
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any())).thenReturn(SscsCaseDetails.builder().data(caseData).build());
@@ -72,7 +73,7 @@ public class CcdNotificationsPdfServiceTest {
                         .correspondenceType(CorrespondenceType.Email)
                         .build()).build();
 
-        service.mergeCorrespondenceIntoCcd(caseData, correspondence);
+        service.mergeCorrespondenceIntoCcd(Long.valueOf(caseData.getCcdCaseId()), correspondence);
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
         verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("added correspondence"), any());
@@ -93,7 +94,6 @@ public class CcdNotificationsPdfServiceTest {
                         .build()).build();
 
 
-        when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         service.mergeLetterCorrespondenceIntoCcd(bytes, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
         verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("added correspondence"), any());
