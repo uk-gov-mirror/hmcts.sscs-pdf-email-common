@@ -61,22 +61,25 @@ public class CcdPdfService {
             return caseData;
         }
         if (fileName.startsWith(APPELLANT_STATEMENT)) {
-            SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
-            ScannedDocument newScannedDoc = ScannedDocument.builder()
-                .value(ScannedDocumentDetails.builder()
-                    .fileName(pdfDocDetails.getDocumentFileName())
-                    .url(pdfDocDetails.getDocumentLink())
-                    .type("other")
-                    .build())
-                .build();
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
-                Collections.singletonList(newScannedDoc)));
+                Collections.singletonList(buildScannedDocFromSscsDoc(pdfDocuments))));
         } else {
             caseData.setSscsDocument(ListUtils.union(emptyIfNull(caseData.getSscsDocument()),
                 emptyIfNull(pdfDocuments)));
         }
         return updateCaseInCcd(caseData, caseId, UPLOAD_DOCUMENT.getCcdType(), idamTokens,
             description).getData();
+    }
+
+    private ScannedDocument buildScannedDocFromSscsDoc(List<SscsDocument> pdfDocuments) {
+        SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
+        return ScannedDocument.builder()
+            .value(ScannedDocumentDetails.builder()
+                .fileName(pdfDocDetails.getDocumentFileName())
+                .url(pdfDocDetails.getDocumentLink())
+                .type("other")
+                .build())
+            .build();
     }
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens,
