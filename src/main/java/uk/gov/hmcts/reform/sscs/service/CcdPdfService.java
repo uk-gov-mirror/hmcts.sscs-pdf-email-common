@@ -60,6 +60,12 @@ public class CcdPdfService {
             log.info("caseId is empty - skipping step to update CCD with PDF");
             return caseData;
         }
+        updateCaseDataWithNewDoc(fileName, caseData, pdfDocuments);
+        return updateCaseInCcd(caseData, caseId, UPLOAD_DOCUMENT.getCcdType(), idamTokens,
+            description).getData();
+    }
+
+    private void updateCaseDataWithNewDoc(String fileName, SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
         if (fileName.startsWith(APPELLANT_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
                 Collections.singletonList(buildScannedDocFromSscsDoc(pdfDocuments))));
@@ -67,8 +73,6 @@ public class CcdPdfService {
             caseData.setSscsDocument(ListUtils.union(emptyIfNull(caseData.getSscsDocument()),
                 emptyIfNull(pdfDocuments)));
         }
-        return updateCaseInCcd(caseData, caseId, UPLOAD_DOCUMENT.getCcdType(), idamTokens,
-            description).getData();
     }
 
     private ScannedDocument buildScannedDocFromSscsDoc(List<SscsDocument> pdfDocuments) {
