@@ -171,7 +171,8 @@ public class CcdPdfServiceTest {
         return new Object[]{
             new Object[]{doc1FileName, newStoredSscsDocumentsWithDoc1, null, null, expectedNumberOfScannedDocsIsOne},
             new Object[]{doc1FileName, Collections.emptyList(), null, null, expectedNumberOfScannedDocsIsZero},
-            new Object[]{doc2FileName, newStoredSscsDocumentsWithDoc2, null, existingScannedDocsWithScannedDoc1, expectedNumberOfScannedDocsIsTwo}
+            new Object[]{doc2FileName, newStoredSscsDocumentsWithDoc2, null, existingScannedDocsWithScannedDoc1, expectedNumberOfScannedDocsIsTwo},
+            new Object[]{doc2FileName, newStoredSscsDocumentsWithDoc2, newStoredSscsDocumentsWithDoc1, existingScannedDocsWithScannedDoc1, expectedNumberOfScannedDocsIsTwo}
         };
     }
 
