@@ -4,7 +4,6 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,10 +17,14 @@ import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,6 +38,7 @@ import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocumentDetails;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
+@RunWith(JUnitParamsRunner.class)
 public class CcdPdfServiceTest {
 
     @InjectMocks
@@ -77,8 +81,10 @@ public class CcdPdfServiceTest {
     }
 
     @Test
-    public void givenAppellantStatement_shouldMergeDocIntoCcd() {
-        mockPdfStoreService();
+    @Parameters(method = "generateScenariosForSscsDocuments")
+    public void givenAppellantStatement_shouldMergeDocIntoCcd(List<SscsDocument> sscsDocuments,
+                                                              int expectedNumberOfScannedDocs) {
+        when(pdfStoreService.store(any(), any(), anyString())).thenReturn(sscsDocuments);
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any()))
             .thenReturn(SscsCaseDetails.builder().data(caseData).build());
 
@@ -93,9 +99,9 @@ public class CcdPdfServiceTest {
             .updateCase(caseDataCaptor.capture(), eq(1L), eq(UPLOAD_DOCUMENT.getCcdType()), anyString(),
                 anyString(), any(IdamTokens.class));
 
-        assertThat(caseDataCaptor.getValue().getScannedDocuments().size(), is(1));
+        assertThat(caseDataCaptor.getValue().getScannedDocuments().size(), is(expectedNumberOfScannedDocs));
         Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()
-            .filter(doc -> "Appellant statement 1 - SC0011111.pdf".equals(doc.getValue().getFileName()))
+            .filter(doc -> "Appellant statement 1 - SC0011111.pdf" .equals(doc.getValue().getFileName()))
             .findFirst();
         if (scannedDocument.isPresent()) {
             ScannedDocument expectedScannedDoc = ScannedDocument.builder()
@@ -106,13 +112,10 @@ public class CcdPdfServiceTest {
                     .build())
                 .build();
             assertThat(scannedDocument.get(), is(expectedScannedDoc));
-        } else {
-            fail("there must be one single doc expected");
         }
-
     }
 
-    private void mockPdfStoreService() {
+    private Object[] generateScenariosForSscsDocuments() {
         SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
             .documentFileName("Appellant statement 1 - SC0011111.pdf")
             .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
@@ -121,8 +124,14 @@ public class CcdPdfServiceTest {
             .build();
 
         SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
+        List<SscsDocument> sscsDocumentsWithOneSingleDoc = singletonList(pdfDocument);
 
-        when(pdfStoreService.store(any(), any(), anyString())).thenReturn(singletonList(pdfDocument));
+        int expectedNumberOfScannedDocsIsOne = 1;
+        int expectedNumberOfScannedDocsIsZero = 0;
+        return new Object[]{
+            new Object[]{sscsDocumentsWithOneSingleDoc, expectedNumberOfScannedDocsIsOne},
+            new Object[]{Collections.emptyList(), expectedNumberOfScannedDocsIsZero}
+        };
     }
 
     @Test

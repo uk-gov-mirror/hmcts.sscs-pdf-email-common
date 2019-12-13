@@ -53,8 +53,10 @@ public class CcdPdfService {
                                         IdamTokens idamTokens, String description, String documentType) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, documentType);
 
-        log.info("Case {} PDF stored in DM for benefit type {}", caseId,
-            caseData.getAppeal().getBenefitType().getCode());
+        if (!pdfDocuments.isEmpty()) {
+            log.info("Case {} PDF stored in DM for benefit type {}", caseId,
+                caseData.getAppeal().getBenefitType().getCode());
+        }
 
         if (caseId == null) {
             log.info("caseId is empty - skipping step to update CCD with PDF");
@@ -68,22 +70,26 @@ public class CcdPdfService {
     private void updateCaseDataWithNewDoc(String fileName, SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
         if (fileName.startsWith(APPELLANT_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
-                Collections.singletonList(buildScannedDocFromSscsDoc(pdfDocuments))));
+                buildScannedDocListFromSscsDoc(pdfDocuments)));
         } else {
             caseData.setSscsDocument(ListUtils.union(emptyIfNull(caseData.getSscsDocument()),
                 emptyIfNull(pdfDocuments)));
         }
     }
 
-    private ScannedDocument buildScannedDocFromSscsDoc(List<SscsDocument> pdfDocuments) {
+    private List<ScannedDocument> buildScannedDocListFromSscsDoc(List<SscsDocument> pdfDocuments) {
+        if (pdfDocuments.isEmpty()) {
+            return Collections.emptyList();
+        }
         SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
-        return ScannedDocument.builder()
+        ScannedDocument scannedDoc = ScannedDocument.builder()
             .value(ScannedDocumentDetails.builder()
                 .fileName(pdfDocDetails.getDocumentFileName())
                 .url(pdfDocDetails.getDocumentLink())
                 .type("other")
                 .build())
             .build();
+        return Collections.singletonList(scannedDoc);
     }
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens,
@@ -93,7 +99,7 @@ public class CcdPdfService {
                 description, idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
-                    + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
+                + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
             return SscsCaseDetails.builder().build();
         }
     }
