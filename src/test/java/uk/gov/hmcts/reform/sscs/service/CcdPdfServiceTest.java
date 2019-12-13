@@ -83,10 +83,13 @@ public class CcdPdfServiceTest {
     @Test
     @Parameters(method = "generateScenariosForSscsDocuments")
     public void givenAppellantStatement_shouldMergeDocIntoCcd(List<SscsDocument> sscsDocuments,
+                                                              List<ScannedDocument> scannedDocuments,
                                                               int expectedNumberOfScannedDocs) {
         when(pdfStoreService.store(any(), any(), anyString())).thenReturn(sscsDocuments);
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any()))
             .thenReturn(SscsCaseDetails.builder().data(caseData).build());
+
+        caseData.setScannedDocuments(scannedDocuments);
 
         service.mergeDocIntoCcd("Appellant statement 1 - SC0011111.pdf", new byte[0], 1L,
             caseData, IdamTokens.builder().build(), "Other evidence");
@@ -101,7 +104,7 @@ public class CcdPdfServiceTest {
 
         assertThat(caseDataCaptor.getValue().getScannedDocuments().size(), is(expectedNumberOfScannedDocs));
         Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()
-            .filter(doc -> "Appellant statement 1 - SC0011111.pdf" .equals(doc.getValue().getFileName()))
+            .filter(doc -> "Appellant statement 1 - SC0011111.pdf".equals(doc.getValue().getFileName()))
             .findFirst();
         if (scannedDocument.isPresent()) {
             ScannedDocument expectedScannedDoc = ScannedDocument.builder()
@@ -129,8 +132,8 @@ public class CcdPdfServiceTest {
         int expectedNumberOfScannedDocsIsOne = 1;
         int expectedNumberOfScannedDocsIsZero = 0;
         return new Object[]{
-            new Object[]{sscsDocumentsWithOneSingleDoc, expectedNumberOfScannedDocsIsOne},
-            new Object[]{Collections.emptyList(), expectedNumberOfScannedDocsIsZero}
+            new Object[]{sscsDocumentsWithOneSingleDoc, null, expectedNumberOfScannedDocsIsOne},
+            new Object[]{Collections.emptyList(), null, expectedNumberOfScannedDocsIsZero}
         };
     }
 
