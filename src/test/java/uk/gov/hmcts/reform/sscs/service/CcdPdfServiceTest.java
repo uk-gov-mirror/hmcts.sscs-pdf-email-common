@@ -82,20 +82,25 @@ public class CcdPdfServiceTest {
 
     @Test
     @Parameters(method = "generateScenariosForSscsDocuments")
-    public void givenAppellantStatement_shouldMergeDocIntoCcd(List<SscsDocument> sscsDocuments,
-                                                              List<ScannedDocument> scannedDocuments,
-                                                              int expectedNumberOfScannedDocs) {
-        when(pdfStoreService.store(any(), any(), anyString())).thenReturn(sscsDocuments);
+    public void givenAppellantStatement_shouldMergeDocIntoCcd(
+        String fileName,
+        List<SscsDocument> newStoredSscsDocuments,
+        List<SscsDocument> existingSscsDocuments,
+        List<ScannedDocument> existingScannedDocuments,
+        int expectedNumberOfScannedDocs) {
+
+        when(pdfStoreService.store(any(), any(), anyString())).thenReturn(newStoredSscsDocuments);
         when(ccdService.updateCase(any(), any(), any(), any(), any(), any()))
             .thenReturn(SscsCaseDetails.builder().data(caseData).build());
 
-        caseData.setScannedDocuments(scannedDocuments);
+        caseData.setSscsDocument(existingSscsDocuments);
+        caseData.setScannedDocuments(existingScannedDocuments);
 
-        service.mergeDocIntoCcd("Appellant statement 1 - SC0011111.pdf", new byte[0], 1L,
-            caseData, IdamTokens.builder().build(), "Other evidence");
+        service.mergeDocIntoCcd(fileName, new byte[0], 1L, caseData, IdamTokens.builder().build(),
+            "Other evidence");
 
-        verify(pdfStoreService, times(1))
-            .store(any(), eq("Appellant statement 1 - SC0011111.pdf"), eq("Other evidence"));
+        verify(pdfStoreService, times(1)).store(any(), eq(fileName),
+            eq("Other evidence"));
 
         ArgumentCaptor<SscsCaseData> caseDataCaptor = ArgumentCaptor.forClass(SscsCaseData.class);
         verify(ccdService, times(1))
@@ -103,37 +108,70 @@ public class CcdPdfServiceTest {
                 anyString(), any(IdamTokens.class));
 
         assertThat(caseDataCaptor.getValue().getScannedDocuments().size(), is(expectedNumberOfScannedDocs));
-        Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()
-            .filter(doc -> "Appellant statement 1 - SC0011111.pdf".equals(doc.getValue().getFileName()))
-            .findFirst();
-        if (scannedDocument.isPresent()) {
-            ScannedDocument expectedScannedDoc = ScannedDocument.builder()
-                .value(ScannedDocumentDetails.builder()
-                    .fileName("Appellant statement 1 - SC0011111.pdf")
-                    .url(DocumentLink.builder().documentUrl("http://dm-store").build())
-                    .type("other")
-                    .build())
-                .build();
-            assertThat(scannedDocument.get(), is(expectedScannedDoc));
+        if (!newStoredSscsDocuments.isEmpty()) {
+            String expectedFilename = newStoredSscsDocuments.get(0).getValue().getDocumentFileName();
+            Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()
+                .filter(scannedDoc -> expectedFilename.equals(scannedDoc.getValue().getFileName()))
+                .findFirst();
+            scannedDocument.ifPresent(document ->
+                assertThat(document, is(buildExpectedScannedDocument(newStoredSscsDocuments))));
         }
     }
 
+    private ScannedDocument buildExpectedScannedDocument(List<SscsDocument> newStoredSscsDocuments) {
+        SscsDocumentDetails expectedDocValues = newStoredSscsDocuments.get(0).getValue();
+        return ScannedDocument.builder()
+            .value(ScannedDocumentDetails.builder()
+                .fileName(expectedDocValues.getDocumentFileName())
+                .url(expectedDocValues.getDocumentLink())
+                .type("other")
+                .build())
+            .build();
+    }
+
     private Object[] generateScenariosForSscsDocuments() {
-        SscsDocumentDetails sscsDocumentDetails = SscsDocumentDetails.builder()
-            .documentFileName("Appellant statement 1 - SC0011111.pdf")
+        String doc1FileName = "Appellant statement 1 - SC0011111.pdf";
+        SscsDocumentDetails sscsDocumentDetails1 = SscsDocumentDetails.builder()
+            .documentFileName(doc1FileName)
             .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
             .documentLink(DocumentLink.builder().documentUrl("http://dm-store").build())
             .documentType("Other evidence")
             .build();
 
-        SscsDocument pdfDocument = SscsDocument.builder().value(sscsDocumentDetails).build();
-        List<SscsDocument> sscsDocumentsWithOneSingleDoc = singletonList(pdfDocument);
+        String doc2FileName = "Appellant statement 2 - SC0022222.pdf";
+        SscsDocumentDetails sscsDocumentDetails2 = SscsDocumentDetails.builder()
+            .documentFileName(doc2FileName)
+            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+            .documentLink(DocumentLink.builder().documentUrl("http://dm-store2").build())
+            .documentType("Other evidence")
+            .build();
+
+        List<SscsDocument> newStoredSscsDocumentsWithDoc1 = singletonList(SscsDocument.builder()
+            .value(sscsDocumentDetails1)
+            .build());
+
+        List<SscsDocument> newStoredSscsDocumentsWithDoc2 = singletonList(SscsDocument.builder()
+            .value(sscsDocumentDetails2)
+            .build());
 
         int expectedNumberOfScannedDocsIsOne = 1;
         int expectedNumberOfScannedDocsIsZero = 0;
+        int expectedNumberOfScannedDocsIsTwo = 2;
+
+        ScannedDocumentDetails existingScannedDoc1 = ScannedDocumentDetails.builder()
+            .fileName(doc1FileName)
+            .url(DocumentLink.builder().documentUrl("http://dm-store").build())
+            .type("other")
+            .build();
+        List<ScannedDocument> existingScannedDocsWithScannedDoc1 = singletonList(ScannedDocument.builder()
+            .value(existingScannedDoc1)
+            .build());
+
+
         return new Object[]{
-            new Object[]{sscsDocumentsWithOneSingleDoc, null, expectedNumberOfScannedDocsIsOne},
-            new Object[]{Collections.emptyList(), null, expectedNumberOfScannedDocsIsZero}
+            new Object[]{doc1FileName, newStoredSscsDocumentsWithDoc1, null, null, expectedNumberOfScannedDocsIsOne},
+            new Object[]{doc1FileName, Collections.emptyList(), null, null, expectedNumberOfScannedDocsIsZero},
+            new Object[]{doc2FileName, newStoredSscsDocumentsWithDoc2, null, existingScannedDocsWithScannedDoc1, expectedNumberOfScannedDocsIsTwo}
         };
     }
 
