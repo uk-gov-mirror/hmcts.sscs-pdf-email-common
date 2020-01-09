@@ -75,7 +75,7 @@ public class CcdNotificationsPdfServiceTest {
         service.mergeCorrespondenceIntoCcd(caseData, correspondence);
         verify(pdfServiceClient).generateFromHtml(any(), any());
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("added correspondence"), any());
+        verify(ccdService).updateCase(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
     }
 
     @Test
@@ -96,6 +96,6 @@ public class CcdNotificationsPdfServiceTest {
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
         service.mergeLetterCorrespondenceIntoCcd(bytes, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCase(any(), any(), any(), eq("SSCS - upload document event"), eq("added correspondence"), any());
+        verify(ccdService).updateCase(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
     }
 }
