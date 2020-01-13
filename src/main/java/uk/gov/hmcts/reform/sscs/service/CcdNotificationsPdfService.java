@@ -9,10 +9,7 @@ import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Correspondence;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseData;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsCaseDetails;
-import uk.gov.hmcts.reform.sscs.ccd.domain.SscsDocument;
+import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
@@ -67,7 +64,7 @@ public class CcdNotificationsPdfService {
         sscsCaseData.setCorrespondence(allCorrespondence);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), "uploadDocument", idamTokens, "added correspondence");
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(), idamTokens);
 
         return caseDetails.getData();
     }
@@ -91,15 +88,15 @@ public class CcdNotificationsPdfService {
         allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setCorrespondence(allCorrespondence);
 
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), "uploadDocument", idamTokens, "added correspondence");
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(), idamTokens);
 
         return caseDetails.getData();
     }
 
 
-    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
+    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens) {
         try {
-            return ccdService.updateCase(caseData, caseId, eventId, "SSCS - upload document event", description, idamTokens);
+            return ccdService.updateCase(caseData, caseId, eventId, "Notification sent", "Notification sent via Gov Notify", idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
                     + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
