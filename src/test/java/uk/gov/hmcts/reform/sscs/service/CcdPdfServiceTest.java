@@ -124,6 +124,7 @@ public class CcdPdfServiceTest {
             .value(ScannedDocumentDetails.builder()
                 .fileName(expectedDocValues.getDocumentFileName())
                 .url(expectedDocValues.getDocumentLink())
+                .scannedDate(expectedDocValues.getDocumentDateAdded())
                 .type("other")
                 .build())
             .build();
