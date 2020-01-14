@@ -86,6 +86,7 @@ public class CcdPdfService {
             .value(ScannedDocumentDetails.builder()
                 .fileName(pdfDocDetails.getDocumentFileName())
                 .url(pdfDocDetails.getDocumentLink())
+                .scannedDate(pdfDocDetails.getDocumentDateAdded())
                 .type("other")
                 .build())
             .build();
