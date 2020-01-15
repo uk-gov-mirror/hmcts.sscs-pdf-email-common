@@ -14,6 +14,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class CcdPdfServiceTest {
             .value(ScannedDocumentDetails.builder()
                 .fileName(expectedDocValues.getDocumentFileName())
                 .url(expectedDocValues.getDocumentLink())
-                .scannedDate(expectedDocValues.getDocumentDateAdded())
+                .scannedDate(LocalDate.parse(expectedDocValues.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME))
                 .type("other")
                 .build())
             .build();
