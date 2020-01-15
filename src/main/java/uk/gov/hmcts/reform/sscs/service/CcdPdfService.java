@@ -88,7 +88,7 @@ public class CcdPdfService {
 
         String dateAdded = null;
         if (pdfDocDetails.getDocumentDateAdded() != null) {
-            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).format(DateTimeFormatter.ISO_DATE_TIME);
+            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME);
         } else {
             dateAdded = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         }
