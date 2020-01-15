@@ -88,9 +88,9 @@ public class CcdPdfService {
 
         String dateAdded = null;
         if (pdfDocDetails.getDocumentDateAdded() != null) {
-            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).format(DateTimeFormatter.ISO_DATE);
+            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).format(DateTimeFormatter.ISO_DATE_TIME);
         } else {
-            dateAdded = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
+            dateAdded = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         }
 
         ScannedDocument scannedDoc = ScannedDocument.builder()
