@@ -3,6 +3,9 @@ package uk.gov.hmcts.reform.sscs.service;
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -82,11 +85,19 @@ public class CcdPdfService {
             return Collections.emptyList();
         }
         SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
+
+        String dateAdded = null;
+        if (pdfDocDetails.getDocumentDateAdded() != null) {
+            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).format(DateTimeFormatter.ISO_DATE);
+        } else {
+            dateAdded = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE);
+        }
+
         ScannedDocument scannedDoc = ScannedDocument.builder()
             .value(ScannedDocumentDetails.builder()
                 .fileName(pdfDocDetails.getDocumentFileName())
                 .url(pdfDocDetails.getDocumentLink())
-                .scannedDate(pdfDocDetails.getDocumentDateAdded())
+                .scannedDate(dateAdded)
                 .type("other")
                 .build())
             .build();
