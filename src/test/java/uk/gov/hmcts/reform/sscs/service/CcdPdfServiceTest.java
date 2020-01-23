@@ -82,7 +82,7 @@ public class CcdPdfServiceTest {
 
     @Test
     @Parameters(method = "generateScenariosForSscsDocuments")
-    public void givenAppellantStatement_shouldMergeDocIntoCcd(
+    public void givenStatement_shouldMergeDocIntoCcd(
         String fileName,
         List<SscsDocument> newStoredSscsDocuments,
         List<SscsDocument> existingSscsDocuments,
@@ -138,6 +138,18 @@ public class CcdPdfServiceTest {
             .documentType("Other evidence")
             .build();
 
+        String doc1RepFileName = "Representative statement 1 - SC0011111.pdf";
+        SscsDocumentDetails sscsDocumentDetails1WithRepStatement = SscsDocumentDetails.builder()
+            .documentFileName(doc1RepFileName)
+            .documentDateAdded(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+            .documentLink(DocumentLink.builder().documentUrl("http://dm-store").build())
+            .documentType("Other evidence")
+            .build();
+        List<SscsDocument> newStoredSscsDocumentsWithDocWithRepsStatement = singletonList(SscsDocument.builder()
+            .value(sscsDocumentDetails1WithRepStatement)
+            .build());
+
+
         String doc2FileName = "Appellant statement 2 - SC0022222.pdf";
         SscsDocumentDetails sscsDocumentDetails2 = SscsDocumentDetails.builder()
             .documentFileName(doc2FileName)
@@ -170,6 +182,7 @@ public class CcdPdfServiceTest {
 
         return new Object[]{
             new Object[]{doc1FileName, newStoredSscsDocumentsWithDoc1, null, null, expectedNumberOfScannedDocsIsOne},
+            new Object[]{doc1RepFileName, newStoredSscsDocumentsWithDocWithRepsStatement, null, null, expectedNumberOfScannedDocsIsOne},
             new Object[]{doc1FileName, Collections.emptyList(), null, null, expectedNumberOfScannedDocsIsZero},
             new Object[]{doc2FileName, newStoredSscsDocumentsWithDoc2, null, existingScannedDocsWithScannedDoc1, expectedNumberOfScannedDocsIsTwo},
             new Object[]{doc2FileName, newStoredSscsDocumentsWithDoc2, newStoredSscsDocumentsWithDoc1, existingScannedDocsWithScannedDoc1, expectedNumberOfScannedDocsIsTwo}

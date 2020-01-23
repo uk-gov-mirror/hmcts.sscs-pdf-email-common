@@ -24,6 +24,7 @@ import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 public class CcdPdfService {
 
     private static final String APPELLANT_STATEMENT = "Appellant statement ";
+    private static final String REPRESENTATIVE_STATEMENT = "Representative statement ";
 
     @Autowired
     private PdfStoreService pdfStoreService;
@@ -68,7 +69,7 @@ public class CcdPdfService {
     }
 
     private void updateCaseDataWithNewDoc(String fileName, SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
-        if (fileName.startsWith(APPELLANT_STATEMENT)) {
+        if (fileName.startsWith(APPELLANT_STATEMENT) || fileName.startsWith(REPRESENTATIVE_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
                 buildScannedDocListFromSscsDoc(pdfDocuments)));
         } else {
