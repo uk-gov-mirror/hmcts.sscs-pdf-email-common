@@ -30,7 +30,7 @@ public class EmailService {
 
     @Retryable(value = EmailSendFailedException.class,
             backoff = @Backoff(delay = 100, maxDelay = 500))
-    public void sendEmail(final Email email) {
+    public void sendEmail(long caseId, final Email email) {
         try {
             final MimeMessage message = javaMailSender.createMimeMessage();
             final MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(message, true);
@@ -55,7 +55,7 @@ public class EmailService {
                 }
             }
 
-            log.info("Sending email with subject [" + email.getSubject() + "] " +
+            log.info("Case [" + caseId + "] sending email with subject [" + email.getSubject() + "] " +
                     "of [" + message.getSize() + "] bytes " +
                     "with [" + attachmentsSize + "] bytes of attachments.");
             javaMailSender.send(message);
