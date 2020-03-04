@@ -49,7 +49,7 @@ public class EmailServiceTest {
     public void testSendEmailSuccess() {
         Email emailData = SampleEmailData.getDefault();
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
-        emailService.sendEmail(emailData);
+        emailService.sendEmail(1L, emailData);
         verify(javaMailSender).send(mimeMessage);
     }
 
@@ -58,7 +58,7 @@ public class EmailServiceTest {
         Email emailData = SampleEmailData.getDefault();
         emailData.getAttachments().add(EmailAttachment.file("SomeFile".getBytes(), "SomeFile.doc"));
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
-        emailService.sendEmail(emailData);
+        emailService.sendEmail(1L, emailData);
         verify(javaMailSender).send(mimeMessage);
     }
 
@@ -67,7 +67,7 @@ public class EmailServiceTest {
 
         Email testEmail = Email.builder().from(EMAIL_FROM).to(EMAIL_TO).subject(EMAIL_SUBJECT).message(EMAIL_MESSAGE).attachments(emptyList()).build();
         doNothing().when(javaMailSender).send(any(MimeMessage.class));
-        emailService.sendEmail(testEmail);
+        emailService.sendEmail(1L, testEmail);
         verify(javaMailSender).send(mimeMessage);
     }
 
@@ -75,19 +75,19 @@ public class EmailServiceTest {
     public void testSendEmailThrowsMailException() {
         Email emailData = SampleEmailData.getDefault();
         doThrow(mock(MailException.class)).when(javaMailSender).send(any(MimeMessage.class));
-        emailService.sendEmail(emailData);
+        emailService.sendEmail(1L, emailData);
     }
 
     @Test(expected = EmailSendFailedException.class)
     public void testSendEmailThrowsInvalidArgumentExceptionForInvalidTo() {
         Email emailData = SampleEmailData.getWithToNull();
-        emailService.sendEmail(emailData);
+        emailService.sendEmail(1L, emailData);
     }
 
     @Test(expected = EmailSendFailedException.class)
     public void testSendEmailThrowsInvalidArgumentExceptionForInvalidSubject() {
         Email emailData = SampleEmailData.getWithSubjectNull();
-        emailService.sendEmail(emailData);
+        emailService.sendEmail(1L, emailData);
     }
 
     @Test
