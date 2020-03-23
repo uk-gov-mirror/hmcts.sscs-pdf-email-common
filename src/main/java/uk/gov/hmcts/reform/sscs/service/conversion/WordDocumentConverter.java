@@ -43,8 +43,15 @@ public class WordDocumentConverter implements FileToPdfConverter {
 
     @Override
     public File convert(File file) throws IOException {
+        log.info("Converting file...");
         final String convertedFileName = String.format("%s.pdf", FilenameUtils.getBaseName(file.getName()));
+        log.info("convertedFileName:", convertedFileName);
+
         final String originalFileName = file.getName();
+        log.info("originalFileName:", originalFileName);
+
+        log.info("accessKey:", accessKey);
+        log.info("outputName:", convertedFileName);
 
         MultipartBody requestBody = new MultipartBody
                 .Builder()
@@ -54,17 +61,31 @@ public class WordDocumentConverter implements FileToPdfConverter {
                 .addFormDataPart("file", originalFileName, RequestBody.create(file, okhttp3.MediaType.get(PDF_CONTENT_TYPE)))
                 .build();
 
+
+        log.info("About to make request...");
+
+
         final Request request = new Request.Builder()
                 .header("Accept", PDF_CONTENT_TYPE)
                 .url(endpoint)
                 .method("POST", requestBody)
                 .build();
 
+        log.info("About to receive response");
+
         final Response response = httpClient.newCall(request).execute();
+
+        log.info("Response: " + response);
+
 
         final File convertedFile = File.createTempFile("stitch-conversion", ".pdf");
 
+        log.info("convertedFile: " + convertedFile);
+
+
         Files.write(convertedFile.toPath(), Objects.requireNonNull(response.body()).bytes());
+
+        log.info("About to return converted file");
 
         return convertedFile;
     }
