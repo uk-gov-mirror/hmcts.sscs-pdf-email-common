@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.sscs.service;
 
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -16,9 +15,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Appellant;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Identity;
-import uk.gov.hmcts.reform.sscs.ccd.domain.Name;
 import uk.gov.hmcts.reform.sscs.domain.email.Email;
 import uk.gov.hmcts.reform.sscs.domain.email.EmailAttachment;
 import uk.gov.hmcts.reform.sscs.exception.EmailSendFailedException;
@@ -88,15 +84,6 @@ public class EmailServiceTest {
     public void testSendEmailThrowsInvalidArgumentExceptionForInvalidSubject() {
         Email emailData = SampleEmailData.getWithSubjectNull();
         emailService.sendEmail(1L, emailData);
-    }
-
-    @Test
-    public void generateUniqueEmailIdFromAppellant() {
-        String result = emailService.generateUniqueEmailId(Appellant.builder()
-                .identity(Identity.builder().nino("ABC1234YZ").build())
-                .name(Name.builder().lastName("Smith").build()).build());
-
-        assertEquals("Smith_4YZ", result);
     }
 
     public static class SampleEmailData {
