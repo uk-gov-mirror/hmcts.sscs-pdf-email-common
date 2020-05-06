@@ -55,11 +55,16 @@ public class CcdPdfService {
 
     private SscsCaseData updateAndMerge(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData,
                                         IdamTokens idamTokens, String description, String documentType) {
+        updateDoc(fileName, pdf, caseId, caseData, documentType);
+        return updateCaseInCcd(caseData, caseId, UPLOAD_DOCUMENT.getCcdType(), idamTokens, description).getData();
+    }
+
+    public SscsCaseData updateDoc(String fileName, byte[] pdf, Long caseId, SscsCaseData caseData, String documentType) {
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, fileName, documentType);
 
         if (!pdfDocuments.isEmpty()) {
             log.info("Case {} PDF stored in DM for benefit type {}", caseId,
-                caseData.getAppeal().getBenefitType().getCode());
+                    caseData.getAppeal().getBenefitType().getCode());
         }
 
         if (caseId == null) {
@@ -67,8 +72,7 @@ public class CcdPdfService {
             return caseData;
         }
         updateCaseDataWithNewDoc(fileName, caseData, pdfDocuments);
-        return updateCaseInCcd(caseData, caseId, UPLOAD_DOCUMENT.getCcdType(), idamTokens,
-            description).getData();
+        return caseData;
     }
 
     private void updateCaseDataWithNewDoc(String fileName, SscsCaseData caseData, List<SscsDocument> pdfDocuments) {
