@@ -47,7 +47,7 @@ public class FileToPdfConversionService {
         TikaConfig config = TikaConfig.getDefaultConfig();
         Detector detector = config.getDetector();
         Metadata metadata = new Metadata();
-        metadata.set(Metadata.RESOURCE_NAME_KEY, f.getOriginalFilename());
+        metadata.set(Metadata.CONTENT_TYPE, f.getOriginalFilename());
         try (InputStream is = f.getInputStream()) {
             TikaInputStream stream = TikaInputStream.get(is);
             String mimeType = detector.detect(stream, metadata).getBaseType().toString();
@@ -65,7 +65,7 @@ public class FileToPdfConversionService {
         TikaConfig config = TikaConfig.getDefaultConfig();
         Detector detector = config.getDetector();
         Metadata metadata = new Metadata();
-        metadata.set(Metadata.RESOURCE_NAME_KEY, f.getOriginalFilename());
+        metadata.set(Metadata.CONTENT_TYPE, f.getOriginalFilename());
         String newMimeType = detector.detect(TikaInputStream.get(file), metadata).getBaseType().toString();
 
         String extension =  FilenameUtils.getExtension(file.getName());
