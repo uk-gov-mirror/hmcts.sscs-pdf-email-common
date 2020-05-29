@@ -62,6 +62,10 @@ public class WordDocumentConverter implements FileToPdfConverter {
 
         final Response response = httpClient.newCall(request).execute();
 
+        if (!response.isSuccessful()) {
+            throw new IOException(String.format("Docmosis error (%s) converting: %s", response.code(), file.getName()));
+        }
+
         final File convertedFile = File.createTempFile("stitch-conversion", ".pdf");
 
         Files.write(convertedFile.toPath(), Objects.requireNonNull(response.body()).bytes());
