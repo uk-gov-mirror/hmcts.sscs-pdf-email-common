@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import org.apache.tika.Tika;
@@ -41,7 +42,10 @@ public class FileToPdfConversionServiceTest {
         when(pdfConverter.accepts()).thenReturn(Collections.emptyList());
 
         MultipartFile mpf = mock(MultipartFile.class);
+        InputStream inputStream = mock(InputStream.class);
         List<MultipartFile> input = Lists.newArrayList(mpf);
+        when(mpf.getOriginalFilename()).thenReturn("flying-pig.jpg");
+        when(mpf.getInputStream()).thenReturn(inputStream);
         final List<MultipartFile> convert = conversionService.convert(input);
         assertEquals(input, convert);
     }

@@ -11,6 +11,9 @@ import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,9 +44,13 @@ public class FileToPdfConversionService {
     }
 
     private MultipartFile convert(MultipartFile f) throws IOException {
-
+        TikaConfig config = TikaConfig.getDefaultConfig();
+        Detector detector = config.getDetector();
+        Metadata metadata = new Metadata();
+        metadata.set(Metadata.CONTENT_TYPE, f.getOriginalFilename());
         try (InputStream is = f.getInputStream()) {
-            String mimeType = tika.detect(is, new Metadata());
+            TikaInputStream stream = TikaInputStream.get(is);
+            String mimeType = detector.detect(stream, metadata).getBaseType().toString();
 
             Optional<File> fileOptional = convertFile(mimeType, f);
 
@@ -55,7 +62,11 @@ public class FileToPdfConversionService {
     }
 
     private MultipartFile getMultipartFile(MultipartFile f, File file) throws IOException {
-        String newMimeType = tika.detect(file);
+        TikaConfig config = TikaConfig.getDefaultConfig();
+        Detector detector = config.getDetector();
+        Metadata metadata = new Metadata();
+        metadata.set(Metadata.CONTENT_TYPE, f.getOriginalFilename());
+        String newMimeType = detector.detect(TikaInputStream.get(file), metadata).getBaseType().toString();
 
         String extension =  FilenameUtils.getExtension(file.getName());
         final String fileName = String.format("%s.%s", FilenameUtils.getBaseName(f.getOriginalFilename()), extension);
