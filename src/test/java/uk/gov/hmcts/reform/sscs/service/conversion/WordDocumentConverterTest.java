@@ -28,19 +28,19 @@ public class WordDocumentConverterTest {
     public void setup() {
         httpClient = new OkHttpClient
                 .Builder()
-                .addInterceptor(WordDocumentConverterTest::intercept)
+                .addInterceptor(chain -> intercept(chain, 200))
                 .build();
         converter = new WordDocumentConverter(httpClient, "http://www.example.com", "key");
     }
 
-    private static Response intercept(Interceptor.Chain chain) throws IOException {
+    private static Response intercept(Interceptor.Chain chain, int response) throws IOException {
         InputStream file = ClassLoader.getSystemResourceAsStream("wordDocument.doc");
 
         return new Response.Builder()
                 .body(ResponseBody.create(MediaType.get("application/pdf"), IOUtils.toByteArray(file)))
                 .request(chain.request())
                 .message("")
-                .code(200)
+                .code(response)
                 .protocol(Protocol.HTTP_2)
                 .build();
     }
@@ -62,6 +62,19 @@ public class WordDocumentConverterTest {
 
         assertNotEquals(input.getName(), output.getName());
         assertEquals("pdf", FilenameUtils.getExtension(output.getName()));
+    }
+
+    @Test(expected = IOException.class)
+    public void failsConversion() throws IOException {
+        httpClient = new OkHttpClient
+                .Builder()
+                .addInterceptor(chain -> intercept(chain, 500))
+                .build();
+        converter = new WordDocumentConverter(httpClient, "http://www.example.com", "key");
+
+        File input = new File(ClassLoader.getSystemResource("wordDocument.doc").getPath());
+
+        converter.convert(input);
     }
 
 }
