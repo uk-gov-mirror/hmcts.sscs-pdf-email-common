@@ -1,17 +1,16 @@
 package uk.gov.hmcts.reform.sscs.service.conversion;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.sscs.docmosis.config.TemplateWelshMonthConfig;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 @Component
 @RequiredArgsConstructor
 public class LocalDateToWelshStringConverter {
-    private TemplateWelshMonthConfig templateWelshMonthConfig;
+    private final TemplateWelshMonthConfig templateWelshMonthConfig;
 
     public String convert(LocalDate dateToConvert) {
         return Optional.ofNullable(dateToConvert).map(date -> {
