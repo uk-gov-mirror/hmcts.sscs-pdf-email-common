@@ -1,50 +1,16 @@
 package uk.gov.hmcts.reform.sscs.service.conversion;
 
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.sscs.docmosis.config.TemplateWelshMonthConfig;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LocalDateToWelshStringConverterTest {
 
-    @Mock
-    private TemplateWelshMonthConfig templateWelshMonthConfig;
-
     @InjectMocks
     private LocalDateToWelshStringConverter localDateToWelshStringConverter;
-    private static Map<String, String> welshMonth;
-
-    @BeforeClass
-    public static void before() {
-        welshMonth = new HashMap<>();
-        welshMonth.put("1","Ionawr");
-        welshMonth.put("2", "Chwefror");
-        welshMonth.put("3", "Mawrth");
-        welshMonth.put("4", "Ebrill");
-        welshMonth.put("5", "Mai");
-        welshMonth.put("6", "Mehefin");
-        welshMonth.put("7", "Gorffennaf");
-        welshMonth.put("8", "Awst");
-        welshMonth.put("9", "Medi");
-        welshMonth.put("10", "Hydref");
-        welshMonth.put("11", "Tachwedd");
-        welshMonth.put("12", "Rhagfyr");
-    }
-
-    @Before
-    public void setUp() {
-        when(templateWelshMonthConfig.getWelshMonths()).thenReturn(welshMonth);
-    }
 
     @Test
     public void testLocalDateConvertedToWelsh() {
