@@ -5,12 +5,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
-public class LocalDateToWelshStringConverter {
+public final class LocalDateToWelshStringConverter {
+
+    private LocalDateToWelshStringConverter() {}
 
     static Map<Integer,String> months = new HashMap<>();
 
@@ -29,7 +29,7 @@ public class LocalDateToWelshStringConverter {
         months.put(12,"Rhagfyr");
     }
 
-    public String convert(LocalDate dateToConvert) {
+    public static String convert(LocalDate dateToConvert) {
         return Optional.ofNullable(dateToConvert).map(date -> {
             int day = dateToConvert.getDayOfMonth();
             int year = dateToConvert.getYear();
@@ -40,11 +40,11 @@ public class LocalDateToWelshStringConverter {
         }).orElse(null);
     }
 
-    public String convert(String localDateFormat) {
+    public static String convert(String localDateFormat) {
         return convert(LocalDate.parse(localDateFormat));
     }
 
-    public String convertDateTime(String localDateTimeFormat) {
+    public static String convertDateTime(String localDateTimeFormat) {
         return convert(LocalDateTime.parse(localDateTimeFormat).toLocalDate());
     }
 }
