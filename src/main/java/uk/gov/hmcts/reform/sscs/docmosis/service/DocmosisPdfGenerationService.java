@@ -42,14 +42,17 @@ public class DocmosisPdfGenerationService implements PdfGenerationService {
         checkArgument(!isNullOrEmpty(templateName), templateEmptyMessage);
         checkNotNull(documentHolder.getPlaceholders(), placeholdersEmptyMessage);
 
-        log.info("Making request to pdf service to generate pdf document with template {} "
-            + "and placeholders of size [{}]", templateName, documentHolder.getPlaceholders().size());
+        log.info("Making request to Docmosis pdf service to generate pdf document with template {} "
+            + "and placeholders of size [{}] to endpoint {}", templateName, documentHolder.getPlaceholders().size(),
+                this.pdfServiceEndpoint);
 
         try {
             ResponseEntity<byte[]> response =
                 restTemplate.postForEntity(pdfServiceEndpoint, request(templateName, documentHolder.getPlaceholders(), documentHolder.isPdfArchiveMode()), byte[].class);
             return response.getBody();
         } catch (Exception e) {
+            log.error("Failed to request PDF from Docmosis REST endpoint " + this.pdfServiceEndpoint + " with error " +
+                    e.getMessage(), e);
             throw new PdfGenerationException("Failed to request PDF from REST endpoint " + e.getMessage(), e);
         }
     }
