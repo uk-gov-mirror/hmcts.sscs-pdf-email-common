@@ -43,7 +43,7 @@ public class CcdNotificationsPdfService {
 
         byte[] template;
         try {
-            template = getSentEmailTemplate();
+            template = getSentEmailTemplate(sscsCaseData.isLanguagePreferenceWelsh());
         } catch (IOException e) {
             throw new PdfGenerationException("Error getting template", e);
         }
@@ -104,8 +104,9 @@ public class CcdNotificationsPdfService {
         }
     }
 
-    private byte[] getSentEmailTemplate() throws IOException {
-        InputStream in = getClass().getResourceAsStream("/templates/sent_notification.html");
+    private byte[] getSentEmailTemplate(boolean isWelsh) throws IOException {
+        InputStream in = getClass().getResourceAsStream(isWelsh ? "/templates/sent_welsh_notification.html"
+                : "/templates/sent_notification.html");
         return IOUtils.toByteArray(in);
     }
 
