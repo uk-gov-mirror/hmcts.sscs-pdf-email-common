@@ -137,7 +137,7 @@
 
         <div>
             <dt class="cya-question">Dyddiad geni</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.identity.dob | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") }}</dd>
+            <dd class="cya-answer">{{ appellant_identity_dob }}</dd>
         </div>
 
         <div>
@@ -189,7 +189,7 @@
 
         <div>
             <dt class="cya-question">Dyddiad geni</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.appellant.appointee.identity.dob | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") }}</dd>
+            <dd class="cya-answer">{{ appellant_appointee_identity_dob }}</dd>
         </div>
 
         <div>
@@ -286,14 +286,14 @@
         <div>
             <dt class="cya-question">Dyddiad y penderfyniad</dt>
             <dd class="cya-answer">
-                {{ PdfWrapper.sscsCaseData.appeal.mrnDetails.mrnDate | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") | default('Amherthnasol') }}
+                {{ date_of_decision | default('Amherthnasol') }}
             </dd>
         </div>
 
         <div>
             <dt class="cya-question">Dyddiad cyflwyno’r apêl</dt>
             <dd class="cya-answer">
-                {{ PdfWrapper.currentDate | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") | default('Amherthnasol') }}
+                {{ welshCurrentDate | default('Amherthnasol') }}
             </dd>
         </div>
 
@@ -341,8 +341,8 @@
             <dt class="cya-question">Dyddiadau nad ydych ar gael</dt>
             <dd class="cya-answer">
                 {% if PdfWrapper.sscsCaseData.appeal.hearingOptions.scheduleHearing == "Yes"  %}
-                {% for date in PdfWrapper.sscsCaseData.appeal.hearingOptions.excludeDates %}
-                {{ date.value.start | date(existingFormat="yyyy-MM-dd", format="dd MMMM yyyy") }}<br/>
+                {% for date in welsh_exclude_dates %}
+                {{ date }}<br/>
                 {% endfor %}
                 {% else %}
                 Not Applicable
