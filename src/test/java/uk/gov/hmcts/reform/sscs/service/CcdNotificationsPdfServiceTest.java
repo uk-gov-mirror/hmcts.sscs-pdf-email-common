@@ -79,26 +79,6 @@ public class CcdNotificationsPdfServiceTest {
     }
 
     @Test
-    public void mergeCorrespondenceIntoCcdIfLangIsWelsh() {
-
-        Correspondence correspondence = Correspondence.builder().value(
-                CorrespondenceDetails.builder()
-                        .sentOn("20 04 2019 11:00:00")
-                        .from("from")
-                        .to("to")
-                        .body("the body")
-                        .subject("a subject")
-                        .eventType("event")
-                        .correspondenceType(CorrespondenceType.Email)
-                        .build()).build();
-        caseData.setLanguagePreferenceWelsh("Yes");
-        service.mergeCorrespondenceIntoCcd(caseData, correspondence);
-        verify(pdfServiceClient).generateFromHtml(any(), any());
-        verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
-        verify(ccdService).updateCase(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
-    }
-
-    @Test
     public void mergeLetterCorrespondenceIntoCcd() {
         byte[] bytes = "String".getBytes();
         Long caseId = Long.valueOf(caseData.getCcdCaseId());
