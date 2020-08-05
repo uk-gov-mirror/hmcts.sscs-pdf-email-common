@@ -12,4 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class PdfDocumentConfig {
     private String hmctsImgKey;
     private String hmctsImgVal;
+    private String hmctsWelshImgKey;
+    private String hmctsWelshImgVal;
 }

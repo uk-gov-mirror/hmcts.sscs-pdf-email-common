@@ -11,9 +11,11 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.sscs.docmosis.config.PdfDocumentConfig;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.DocumentHolder;
 import uk.gov.hmcts.reform.sscs.docmosis.domain.Template;
 
@@ -21,6 +23,9 @@ public class DocmosisPdfGenerationServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
+
+    @Spy
+    private PdfDocumentConfig pdfDocumentConfig;
 
     private DocmosisPdfGenerationService pdfGenerationService;
 
@@ -39,6 +44,16 @@ public class DocmosisPdfGenerationServiceTest {
         dataMap.put("PBANumber", "PBA123456");
 
         return dataMap;
+    }
+
+    @Test
+    public void givenADocumentHolder_thenGenerateAPdf_withWelshLogo() {
+        PLACEHOLDERS.put(pdfDocumentConfig.getHmctsWelshImgKey(), pdfDocumentConfig.getHmctsWelshImgVal());
+        doReturn(createResponseEntity()).when(restTemplate).postForEntity(anyString(), any(), eq(byte[].class));
+
+        byte[] result = pdfGenerationService.generatePdf(DocumentHolder.builder().template(new Template("bla", "bla2")).placeholders(PLACEHOLDERS).build());
+        assertThat(result, is(notNullValue()));
+        assertThat(result, is(equalTo(FILE_CONTENT.getBytes())));
     }
 
     @Test
