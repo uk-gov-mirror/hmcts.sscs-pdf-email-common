@@ -101,11 +101,11 @@
         <div>
             <dt class="cya-question">Enw’r budd-dal</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.appeal.benefitType.code == 'PIP' %}
+                {% if PdfWrapper.sscsCaseData.appeal.benefitType.code == "PIP" %}
                 Taliad Annibyniaeth Personol (PIP)
-                {% endif PdfWrapper.sscsCaseData.appeal.benefitType.code == 'UC' %}
+                {% endif PdfWrapper.sscsCaseData.appeal.benefitType.code == "UC" %}
                 Credyd Cynhwysol (UC)
-                {% endif PdfWrapper.sscsCaseData.appeal.benefitType.code == 'ESA' %}
+                {% endif PdfWrapper.sscsCaseData.appeal.benefitType.code == "ESA" %}
                 Lwfans Cyflogaeth a Chymorth (ESA)
                 {% else %}
                 {{ PdfWrapper.sscsCaseData.appeal.benefitType.description }} ({{ PdfWrapper.sscsCaseData.appeal.benefitType.code }})
@@ -123,7 +123,7 @@
         <div>
             <dt class="cya-question">Tystiolaeth wedi’i hatodi</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.evidencePresent is defined and PdfWrapper.sscsCaseData.evidencePresent == 'Yes' %}
+                {% if PdfWrapper.sscsCaseData.evidencePresent == "Yes" %}
                 ydw
                 {% else %}
                 nac ydw
@@ -352,7 +352,7 @@
         <div>
             <dt class="cya-question">Mynychu'r gwrandawiad</dt>
             <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.appeal.hearingOptions.wantsToAttend is defined and PdfWrapper.sscsCaseData.appeal.hearingOptions.wantsToAttend == 'Yes' %}
+                {% if PdfWrapper.sscsCaseData.appeal.hearingOptions.wantsToAttend == "Yes" %}
                 ydw
                 {% else %}
                 nac ydw
