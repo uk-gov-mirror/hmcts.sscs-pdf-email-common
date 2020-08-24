@@ -34,11 +34,11 @@
         }
 
         .hmcts-image {
-            margin: 20px 0;
+            margin: 5px 0;
         }
 
         .hmcts-image-welsh {
-            margin: 20px 0 20px 0;
+            margin: 5px 0;
         }
 
         .sscs1 {
@@ -100,17 +100,7 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Enw’r budd-dal</dt>
-            <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.appeal.benefitType.code == "PIP" %}
-                Taliad Annibyniaeth Personol (PIP)
-                {% endif PdfWrapper.sscsCaseData.appeal.benefitType.code == "UC" %}
-                Credyd Cynhwysol (UC)
-                {% endif PdfWrapper.sscsCaseData.appeal.benefitType.code == "ESA" %}
-                Lwfans Cyflogaeth a Chymorth (ESA)
-                {% else %}
-                {{ PdfWrapper.sscsCaseData.appeal.benefitType.description }} ({{ PdfWrapper.sscsCaseData.appeal.benefitType.code }})
-                {% endif %}
-            </dd>
+            <dd class="cya-answer">{{ welshBenefitType }}</dd>
         </div>
         <div>
             <dt class="cya-question">Rhif Yswiriant Gwladol</dt>
@@ -122,14 +112,7 @@
         </div>
         <div>
             <dt class="cya-question">Tystiolaeth wedi’i hatodi</dt>
-            <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.evidencePresent == "Yes" %}
-                ydw
-                {% else %}
-                nac ydw
-                {% endif %}
-
-            </dd>
+            <dd class="cya-answer">{{ welshEvidencePresent }}</dd>
         </div>
     </dl>
 
@@ -351,13 +334,7 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Mynychu'r gwrandawiad</dt>
-            <dd class="cya-answer">
-                {% if PdfWrapper.sscsCaseData.appeal.hearingOptions.wantsToAttend == "Yes" %}
-                ydw
-                {% else %}
-                nac ydw
-                {% endif %}
-            </dd>
+            <dd class="cya-answer">{{ welshWantsToAttend }}</dd>
         </div>
 
         <div>
