@@ -46,7 +46,7 @@
             font-size: 30pt;
             position: absolute;
             right: 0;
-            top: 10px;
+            top: 20px;
         }
 
         .govuk-check-your-answers .cya-question {
@@ -100,7 +100,7 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Enw’r budd-dal</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.benefitType.description }} ({{ PdfWrapper.sscsCaseData.appeal.benefitType.code }})</dd>
+            <dd class="cya-answer">{{ welshBenefitType }}</dd>
         </div>
         <div>
             <dt class="cya-question">Rhif Yswiriant Gwladol</dt>
@@ -112,7 +112,7 @@
         </div>
         <div>
             <dt class="cya-question">Tystiolaeth wedi’i hatodi</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.evidencePresent }}</dd>
+            <dd class="cya-answer">{{ welshEvidencePresent }}</dd>
         </div>
     </dl>
 
@@ -334,7 +334,7 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Mynychu'r gwrandawiad</dt>
-            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingOptions.wantsToAttend }}</dd>
+            <dd class="cya-answer">{{ welshWantsToAttend }}</dd>
         </div>
 
         <div>
@@ -345,7 +345,7 @@
                 {{ date }}<br/>
                 {% endfor %}
                 {% else %}
-                Not Applicable
+                Nis ddarparwyd
                 {% endif %}
 
             </dd>
@@ -434,13 +434,13 @@
                 {% if PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.wantSmsNotifications == 'Yes'  %}
                 {{ PdfWrapper.sscsCaseData.subscriptions.appointeeSubscription.mobile }}
                 {% else %}
-                Not Applicable
+                Nis ddarparwyd
                 {% endif %}
                 {% else %}
                 {% if PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.wantSmsNotifications == 'Yes'  %}
                 {{ PdfWrapper.sscsCaseData.subscriptions.appellantSubscription.mobile }}
                 {% else %}
-                Not Applicable
+                Nis ddarparwyd
                 {% endif %}
                 {% endif %}
             </dd>
