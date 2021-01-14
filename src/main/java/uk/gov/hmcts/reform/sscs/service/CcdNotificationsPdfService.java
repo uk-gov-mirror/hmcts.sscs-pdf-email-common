@@ -113,7 +113,7 @@ public class CcdNotificationsPdfService {
         allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setReasonableAdjustmentCorrespondence(allCorrespondence);
 
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(), idamTokens);
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), "stopReasonableAdjustment", idamTokens);
 
         return caseDetails.getData();
     }
