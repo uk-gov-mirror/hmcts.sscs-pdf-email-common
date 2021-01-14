@@ -96,6 +96,7 @@ public class CcdNotificationsPdfService {
     public SscsCaseData mergeReasonableAdjustmentsIntoCcd(byte[] pdf, Long ccdCaseId, ReasAdjCorrespondence reasAdjCorrespondence) {
         String filename = String.format("%s %s.pdf", reasAdjCorrespondence.getValue().getEventType(), reasAdjCorrespondence.getValue().getSentOn());
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, reasAdjCorrespondence.getValue().getCorrespondenceType().name());
+
         final List<ReasAdjCorrespondence> correspondences = pdfDocuments.stream().map(doc ->
                 reasAdjCorrespondence.toBuilder().value(reasAdjCorrespondence.getValue().toBuilder()
                         .documentLink(doc.getValue().getDocumentLink())
@@ -106,11 +107,11 @@ public class CcdNotificationsPdfService {
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
         final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
-        List<ReasAdjCorrespondence> existingCorrespondence = sscsCaseData.getReasonableAdjustmentDocuments() == null ? new ArrayList<>() : sscsCaseData.getReasonableAdjustmentDocuments();
+        List<ReasAdjCorrespondence> existingCorrespondence = sscsCaseData.getReasonableAdjustmentCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getReasonableAdjustmentCorrespondence();
         List<ReasAdjCorrespondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
         allCorrespondence.addAll(correspondences);
         allCorrespondence.sort(Comparator.reverseOrder());
-        sscsCaseData.setReasonableAdjustmentDocuments(allCorrespondence);
+        sscsCaseData.setReasonableAdjustmentCorrespondence(allCorrespondence);
 
         SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(), idamTokens);
 
