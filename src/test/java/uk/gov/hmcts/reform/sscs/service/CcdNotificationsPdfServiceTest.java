@@ -98,4 +98,26 @@ public class CcdNotificationsPdfServiceTest {
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Email.name()));
         verify(ccdService).updateCase(any(), any(), any(), eq("Notification sent"), eq("Notification sent via Gov Notify"), any());
     }
+
+    @Test
+    public void mergeReasonableAdjustmentsCorrespondenceIntoCcd() {
+        byte[] bytes = "String".getBytes();
+        Long caseId = Long.valueOf(caseData.getCcdCaseId());
+        Correspondence correspondence = Correspondence.builder().value(
+                CorrespondenceDetails.builder()
+                        .sentOn("20 04 2019 11:00:00")
+                        .from("from")
+                        .to("to")
+                        .subject("a subject")
+                        .eventType("event")
+                        .correspondenceType(CorrespondenceType.Letter)
+                        .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED.getId())
+                        .build()).build();
+
+
+        when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
+        service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(bytes, caseId, correspondence);
+        verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Letter.name()));
+        verify(ccdService).updateCase(any(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
+    }
 }

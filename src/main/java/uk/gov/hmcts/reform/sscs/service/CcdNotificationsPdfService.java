@@ -64,7 +64,8 @@ public class CcdNotificationsPdfService {
         sscsCaseData.setCorrespondence(allCorrespondence);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(), idamTokens);
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
+                idamTokens, "Notification sent via Gov Notify");
 
         return caseDetails.getData();
     }
@@ -88,17 +89,19 @@ public class CcdNotificationsPdfService {
         allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setCorrespondence(allCorrespondence);
 
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(), idamTokens);
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
+                idamTokens, "Notification sent via Gov Notify");
 
         return caseDetails.getData();
     }
 
-    public SscsCaseData mergeReasonableAdjustmentsIntoCcd(byte[] pdf, Long ccdCaseId, ReasAdjCorrespondence reasAdjCorrespondence) {
-        String filename = String.format("%s %s.pdf", reasAdjCorrespondence.getValue().getEventType(), reasAdjCorrespondence.getValue().getSentOn());
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, reasAdjCorrespondence.getValue().getCorrespondenceType().name());
+    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
+        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
 
-        final List<ReasAdjCorrespondence> correspondences = pdfDocuments.stream().map(doc ->
-                reasAdjCorrespondence.toBuilder().value(reasAdjCorrespondence.getValue().toBuilder()
+        final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
+                correspondence.toBuilder().value(correspondence.getValue().toBuilder()
+                        .reasonableAdjustmentStatus("required")
                         .documentLink(doc.getValue().getDocumentLink())
                         .build()).build()
         ).collect(Collectors.toList());
@@ -107,20 +110,21 @@ public class CcdNotificationsPdfService {
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
         final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
-        List<ReasAdjCorrespondence> existingCorrespondence = sscsCaseData.getReasonableAdjustmentCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getReasonableAdjustmentCorrespondence();
-        List<ReasAdjCorrespondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
+        List<Correspondence> existingCorrespondence = sscsCaseData.getReasonableAdjustmentsLetters() == null ? new ArrayList<>() : sscsCaseData.getReasonableAdjustmentsLetters();
+        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
         allCorrespondence.addAll(correspondences);
         allCorrespondence.sort(Comparator.reverseOrder());
-        sscsCaseData.setReasonableAdjustmentCorrespondence(allCorrespondence);
+        sscsCaseData.setReasonableAdjustmentsLetters(allCorrespondence);
 
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), "stopReasonableAdjustment", idamTokens);
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
+                idamTokens, "Stopped for reasonable adjustment to be sent");
 
         return caseDetails.getData();
     }
 
-    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens) {
+    private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
         try {
-            return ccdService.updateCase(caseData, caseId, eventId, "Notification sent", "Notification sent via Gov Notify", idamTokens);
+            return ccdService.updateCase(caseData, caseId, eventId, "Notification sent", description, idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
                     + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
