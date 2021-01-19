@@ -8,6 +8,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
 
@@ -102,7 +104,10 @@ public class CcdNotificationsPdfServiceTest {
     @Test
     public void mergeReasonableAdjustmentsCorrespondenceIntoCcd() {
         byte[] bytes = "String".getBytes();
+        Pdf pdf = new Pdf(bytes, "adocument");
+        List<Pdf> pdfs = Collections.singletonList(pdf);
         Long caseId = Long.valueOf(caseData.getCcdCaseId());
+        DocumentLink documentLink = DocumentLink.builder().documentUrl("Http://document").documentFilename("evidence-document.pdf").build();
         Correspondence correspondence = Correspondence.builder().value(
                 CorrespondenceDetails.builder()
                         .sentOn("20 04 2019 11:00:00")
@@ -110,13 +115,14 @@ public class CcdNotificationsPdfServiceTest {
                         .to("to")
                         .subject("a subject")
                         .eventType("event")
+                        .documentLink(documentLink)
                         .correspondenceType(CorrespondenceType.Letter)
                         .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED.getId())
                         .build()).build();
 
 
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
-        service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(bytes, caseId, correspondence);
+        service.mergeReasonableAdjustmentsCorrespondenceIntoCcd(pdfs, caseId, correspondence);
         verify(pdfStoreService).store(any(), eq("event 20 04 2019 11:00:00.pdf"), eq(CorrespondenceType.Letter.name()));
         verify(ccdService).updateCase(any(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
     }

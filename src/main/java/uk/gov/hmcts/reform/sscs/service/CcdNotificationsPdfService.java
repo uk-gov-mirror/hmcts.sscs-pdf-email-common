@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.poi.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +15,7 @@ import uk.gov.hmcts.reform.pdf.service.client.PDFServiceClient;
 import uk.gov.hmcts.reform.sscs.ccd.domain.*;
 import uk.gov.hmcts.reform.sscs.ccd.exception.CcdException;
 import uk.gov.hmcts.reform.sscs.ccd.service.CcdService;
+import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
@@ -95,9 +99,24 @@ public class CcdNotificationsPdfService {
         return caseDetails.getData();
     }
 
-    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
+    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(List<Pdf> pdfs, Long ccdCaseId, Correspondence correspondence) {
+        PDFMergerUtility merger = new PDFMergerUtility();
+        for (Pdf pdf : pdfs) {
+            merger.addSource(new ByteArrayInputStream(pdf.getContent()));
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        merger.setDestinationStream(baos);
+        try {
+            merger.mergeDocuments(null);
+        } catch (IOException e) {
+            log.error("Failed to create pdf of letter for {}", ccdCaseId, e);
+        }
+
+        byte[] letterDocument = baos.toByteArray();
+
         String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
+
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(letterDocument, filename, correspondence.getValue().getCorrespondenceType().name());
 
         final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
                 correspondence.toBuilder().value(correspondence.getValue().toBuilder()
@@ -115,6 +134,8 @@ public class CcdNotificationsPdfService {
         allCorrespondence.addAll(correspondences);
         allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setReasonableAdjustmentsLetters(allCorrespondence);
+        sscsCaseData.setReasonableAdjustmentsOutstanding(YesNo.YES);
+        log.info("Creating a reasonable adjustment for {}", ccdCaseId);
 
         SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
                 idamTokens, "Stopped for reasonable adjustment to be sent");
