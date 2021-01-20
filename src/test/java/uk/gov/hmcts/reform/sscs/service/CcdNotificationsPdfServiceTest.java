@@ -117,7 +117,7 @@ public class CcdNotificationsPdfServiceTest {
                         .eventType("event")
                         .documentLink(documentLink)
                         .correspondenceType(CorrespondenceType.Letter)
-                        .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED.getId())
+                        .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED)
                         .build()).build();
 
 
