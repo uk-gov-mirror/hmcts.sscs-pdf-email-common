@@ -114,6 +114,10 @@ public class CcdNotificationsPdfService {
 
         byte[] letterDocument = baos.toByteArray();
 
+        return mergeReasonableAdjustmentsCorrespondenceIntoCcd(letterDocument, ccdCaseId, correspondence);
+    }
+
+    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence) {
         String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
 
         List<SscsDocument> pdfDocuments = pdfStoreService.store(letterDocument, filename, correspondence.getValue().getCorrespondenceType().name());
