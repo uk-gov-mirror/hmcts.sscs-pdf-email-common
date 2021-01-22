@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.sscs.service;
 
+import static uk.gov.hmcts.reform.sscs.model.LetterType.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import uk.gov.hmcts.reform.sscs.docmosis.domain.Pdf;
 import uk.gov.hmcts.reform.sscs.exception.PdfGenerationException;
 import uk.gov.hmcts.reform.sscs.idam.IdamService;
 import uk.gov.hmcts.reform.sscs.idam.IdamTokens;
+import uk.gov.hmcts.reform.sscs.model.LetterType;
 
 @Service
 @Slf4j
@@ -99,7 +102,7 @@ public class CcdNotificationsPdfService {
         return caseDetails.getData();
     }
 
-    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(List<Pdf> pdfs, Long ccdCaseId, Correspondence correspondence) {
+    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(List<Pdf> pdfs, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         PDFMergerUtility merger = new PDFMergerUtility();
         for (Pdf pdf : pdfs) {
             merger.addSource(new ByteArrayInputStream(pdf.getContent()));
@@ -114,17 +117,17 @@ public class CcdNotificationsPdfService {
 
         byte[] letterDocument = baos.toByteArray();
 
-        return mergeReasonableAdjustmentsCorrespondenceIntoCcd(letterDocument, ccdCaseId, correspondence);
+        return mergeReasonableAdjustmentsCorrespondenceIntoCcd(letterDocument, ccdCaseId, correspondence, letterType);
     }
 
-    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence) {
+    public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
         String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
 
         List<SscsDocument> pdfDocuments = pdfStoreService.store(letterDocument, filename, correspondence.getValue().getCorrespondenceType().name());
 
         final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
                 correspondence.toBuilder().value(correspondence.getValue().toBuilder()
-                        .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.ACTIONED)
+                        .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED)
                         .documentLink(doc.getValue().getDocumentLink())
                         .build()).build()
         ).collect(Collectors.toList());
@@ -133,18 +136,49 @@ public class CcdNotificationsPdfService {
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
         final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
-        List<Correspondence> existingCorrespondence = sscsCaseData.getReasonableAdjustmentsLetters() == null ? new ArrayList<>() : sscsCaseData.getReasonableAdjustmentsLetters();
-        List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
-        allCorrespondence.addAll(correspondences);
-        allCorrespondence.sort(Comparator.reverseOrder());
-        sscsCaseData.setReasonableAdjustmentsLetters(allCorrespondence);
-        sscsCaseData.setReasonableAdjustmentsOutstanding(YesNo.YES);
+        sscsCaseData.setReasonableAdjustmentsLetters(buildCorrespondenceByParty(sscsCaseData, correspondences, letterType));
+        sscsCaseData.updateReasonableAdjustmentsOutstanding();
+
         log.info("Creating a reasonable adjustment for {}", ccdCaseId);
 
         SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
                 idamTokens, "Stopped for reasonable adjustment to be sent");
 
         return caseDetails.getData();
+    }
+
+    private ReasonableAdjustmentsLetters buildCorrespondenceByParty(SscsCaseData sscsCaseData, List<Correspondence> correspondences, LetterType letterType) {
+        ReasonableAdjustmentsLetters reasonableAdjustmentsLetters = sscsCaseData.getReasonableAdjustmentsLetters() == null ? ReasonableAdjustmentsLetters.builder().build() : sscsCaseData.getReasonableAdjustmentsLetters();
+
+        if (APPELLANT.equals(letterType)) {
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setAppellantReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+        }
+
+        if (APPOINTEE.equals(letterType)) {
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getAppointeeReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getAppointeeReasonableAdjustmentsLetters() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setAppointeeReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+        }
+
+        if (REPRESENTATIVE.equals(letterType)) {
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getRepresentativeReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getRepresentativeReasonableAdjustmentsLetters() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setRepresentativeReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+        }
+
+        if (JOINT_PARTY.equals(letterType)) {
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getJointPartyReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getJointPartyReasonableAdjustmentsLetters() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setJointPartyReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+        }
+
+        return reasonableAdjustmentsLetters;
+    }
+
+    private List<Correspondence> buildCorrespondenceList(List<Correspondence> correspondences, List<Correspondence> existingCorrespondence) {
+        List<Correspondence> correspondence = new ArrayList<>(existingCorrespondence);
+        correspondence.addAll(correspondences);
+        correspondence.sort(Comparator.reverseOrder());
+
+        return correspondence;
     }
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
