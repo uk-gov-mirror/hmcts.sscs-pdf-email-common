@@ -127,7 +127,6 @@ public class CcdNotificationsPdfService {
 
         final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
                 correspondence.toBuilder().value(correspondence.getValue().toBuilder()
-                        .reasonableAdjustmentStatus(ReasonableAdjustmentStatus.REQUIRED)
                         .documentLink(doc.getValue().getDocumentLink())
                         .build()).build()
         ).collect(Collectors.toList());
