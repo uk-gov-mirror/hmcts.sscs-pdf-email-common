@@ -150,7 +150,7 @@ public class CcdNotificationsPdfServiceTest {
         when(pdfStoreService.store(any(), any(), eq(CorrespondenceType.Letter.name()))).thenReturn(sscsDocuments);
         List<Correspondence> existingCorrespondence = new ArrayList<>();
         existingCorrespondence.add(Correspondence.builder().value(CorrespondenceDetails.builder().sentOn("22 Oct 2020 11:33").documentLink(DocumentLink.builder().documentUrl("Testurl").build()).build()).build());
-        caseData.setReasonableAdjustmentsLetters(ReasonableAdjustmentsLetters.builder().appellantReasonableAdjustmentsLetters(existingCorrespondence).build());
+        caseData.setReasonableAdjustmentsLetters(ReasonableAdjustmentsLetters.builder().appellant(existingCorrespondence).build());
 
         Long caseId = Long.valueOf(caseData.getCcdCaseId());
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
@@ -173,9 +173,9 @@ public class CcdNotificationsPdfServiceTest {
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
         verify(ccdService).updateCase(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
 
-        assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters().get(0).getValue().getDocumentLink());
-        assertEquals(ReasonableAdjustmentStatus.REQUIRED, caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters().get(0).getValue().getReasonableAdjustmentStatus());
-        assertEquals("Testurl", caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters().get(1).getValue().getDocumentLink().getDocumentUrl());
+        assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getDocumentLink());
+        assertEquals(ReasonableAdjustmentStatus.REQUIRED, caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getReasonableAdjustmentStatus());
+        assertEquals("Testurl", caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(1).getValue().getDocumentLink().getDocumentUrl());
     }
 
     @Test
@@ -214,7 +214,7 @@ public class CcdNotificationsPdfServiceTest {
         when(pdfStoreService.store(any(), any(), eq(CorrespondenceType.Letter.name()))).thenReturn(sscsDocuments);
         List<Correspondence> existingCorrespondence = new ArrayList<>();
         existingCorrespondence.add(Correspondence.builder().value(CorrespondenceDetails.builder().sentOn("22 Oct 2020 11:33").documentLink(DocumentLink.builder().documentUrl("Testurl").build()).build()).build());
-        caseData.setReasonableAdjustmentsLetters(ReasonableAdjustmentsLetters.builder().appellantReasonableAdjustmentsLetters(existingCorrespondence).build());
+        caseData.setReasonableAdjustmentsLetters(ReasonableAdjustmentsLetters.builder().appellant(existingCorrespondence).build());
 
         Long caseId = Long.valueOf(caseData.getCcdCaseId());
         when(ccdService.getByCaseId(eq(caseId), eq(IdamTokens.builder().build()))).thenReturn(SscsCaseDetails.builder().data(caseData).build());
@@ -235,21 +235,21 @@ public class CcdNotificationsPdfServiceTest {
         verify(pdfStoreService).store(any(), eq("event 22 Jan 2021 11:33.pdf"), eq(CorrespondenceType.Letter.name()));
         verify(ccdService).updateCase(caseDataCaptor.capture(), any(), any(), eq("Notification sent"), eq("Stopped for reasonable adjustment to be sent"), any());
 
-        assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters().get(0).getValue().getDocumentLink());
-        assertEquals(ReasonableAdjustmentStatus.REQUIRED, caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters().get(0).getValue().getReasonableAdjustmentStatus());
-        assertEquals("Testurl", caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters().get(1).getValue().getDocumentLink().getDocumentUrl());
+        assertEquals(sscsDocuments.get(0).getValue().getDocumentLink(), caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getDocumentLink());
+        assertEquals(ReasonableAdjustmentStatus.REQUIRED, caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(0).getValue().getReasonableAdjustmentStatus());
+        assertEquals("Testurl", caseDataCaptor.getValue().getReasonableAdjustmentsLetters().getAppellant().get(1).getValue().getDocumentLink().getDocumentUrl());
     }
 
 
     private List<Correspondence> findLettersToCaptureByParty(ReasonableAdjustmentsLetters reasonableAdjustmentsLetters, LetterType letterType) {
         if (LetterType.APPELLANT.equals(letterType)) {
-            return reasonableAdjustmentsLetters.getAppellantReasonableAdjustmentsLetters();
+            return reasonableAdjustmentsLetters.getAppellant();
         } else if (LetterType.APPOINTEE.equals(letterType)) {
-            return reasonableAdjustmentsLetters.getAppointeeReasonableAdjustmentsLetters();
+            return reasonableAdjustmentsLetters.getAppointee();
         } else if (LetterType.REPRESENTATIVE.equals(letterType)) {
-            return reasonableAdjustmentsLetters.getRepresentativeReasonableAdjustmentsLetters();
+            return reasonableAdjustmentsLetters.getRepresentative();
         } else if (LetterType.JOINT_PARTY.equals(letterType)) {
-            return reasonableAdjustmentsLetters.getJointPartyReasonableAdjustmentsLetters();
+            return reasonableAdjustmentsLetters.getJointParty();
         }
         return null;
     }

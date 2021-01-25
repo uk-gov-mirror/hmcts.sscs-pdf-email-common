@@ -150,23 +150,23 @@ public class CcdNotificationsPdfService {
         ReasonableAdjustmentsLetters reasonableAdjustmentsLetters = sscsCaseData.getReasonableAdjustmentsLetters() == null ? ReasonableAdjustmentsLetters.builder().build() : sscsCaseData.getReasonableAdjustmentsLetters();
 
         if (APPELLANT.equals(letterType)) {
-            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getAppellantReasonableAdjustmentsLetters() : new ArrayList<>();
-            reasonableAdjustmentsLetters.setAppellantReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getAppellant() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getAppellant() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setAppellant(buildCorrespondenceList(correspondences, correspondenceList));
         }
 
         if (APPOINTEE.equals(letterType)) {
-            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getAppointeeReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getAppointeeReasonableAdjustmentsLetters() : new ArrayList<>();
-            reasonableAdjustmentsLetters.setAppointeeReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getAppointee() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getAppointee() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setAppointee(buildCorrespondenceList(correspondences, correspondenceList));
         }
 
         if (REPRESENTATIVE.equals(letterType)) {
-            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getRepresentativeReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getRepresentativeReasonableAdjustmentsLetters() : new ArrayList<>();
-            reasonableAdjustmentsLetters.setRepresentativeReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getRepresentative() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getRepresentative() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setRepresentative(buildCorrespondenceList(correspondences, correspondenceList));
         }
 
         if (JOINT_PARTY.equals(letterType)) {
-            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getJointPartyReasonableAdjustmentsLetters() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getJointPartyReasonableAdjustmentsLetters() : new ArrayList<>();
-            reasonableAdjustmentsLetters.setJointPartyReasonableAdjustmentsLetters(buildCorrespondenceList(correspondences, correspondenceList));
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getJointParty() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getJointParty() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setJointParty(buildCorrespondenceList(correspondences, correspondenceList));
         }
 
         return reasonableAdjustmentsLetters;
