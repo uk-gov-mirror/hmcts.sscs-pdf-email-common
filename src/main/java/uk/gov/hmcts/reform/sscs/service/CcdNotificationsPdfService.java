@@ -140,7 +140,7 @@ public class CcdNotificationsPdfService {
 
         log.info("Creating a reasonable adjustment for {}", ccdCaseId);
 
-        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
+        SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType(),
                 idamTokens, "Stopped for reasonable adjustment to be sent");
 
         return caseDetails.getData();
