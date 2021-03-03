@@ -33,7 +33,7 @@ public class WordDocumentConverterTest {
         converter = new WordDocumentConverter(httpClient, "http://www.example.com", "key");
     }
 
-    private static Response intercept(Interceptor.Chain chain, int response) throws IOException {
+    protected static Response intercept(Interceptor.Chain chain, int response) throws IOException {
         InputStream file = ClassLoader.getSystemResourceAsStream("wordDocument.doc");
 
         return new Response.Builder()
