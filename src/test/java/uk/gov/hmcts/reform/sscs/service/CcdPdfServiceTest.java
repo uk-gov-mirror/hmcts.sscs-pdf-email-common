@@ -10,8 +10,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
 import java.time.LocalDate;
@@ -55,7 +56,7 @@ public class CcdPdfServiceTest {
 
     @Before
     public void setup() {
-        initMocks(this);
+        openMocks(this);
     }
 
     @Test
@@ -109,6 +110,7 @@ public class CcdPdfServiceTest {
                 anyString(), any(IdamTokens.class));
 
         assertThat(caseDataCaptor.getValue().getScannedDocuments().size(), is(expectedNumberOfScannedDocs));
+        assertThat(caseDataCaptor.getValue().getEvidenceHandled(), is(NO.getValue()));
         if (!newStoredSscsDocuments.isEmpty()) {
             String expectedFilename = newStoredSscsDocuments.get(0).getValue().getDocumentFileName();
             Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
+import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -88,6 +89,7 @@ public class CcdPdfService {
         if (fileName.startsWith(APPELLANT_STATEMENT) || fileName.startsWith(REPRESENTATIVE_STATEMENT)) {
             caseData.setScannedDocuments(ListUtils.union(emptyIfNull(caseData.getScannedDocuments()),
                     buildScannedDocListFromSscsDoc(pdfDocuments)));
+            caseData.setEvidenceHandled(NO.getValue());
         } else {
             caseData.setSscsDocument(ListUtils.union(emptyIfNull(caseData.getSscsDocument()),
                     emptyIfNull(pdfDocuments)));
