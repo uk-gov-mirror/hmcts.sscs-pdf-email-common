@@ -31,9 +31,19 @@ public class PdfHelper {
             log.info("PDF is correct size");
             return Optional.empty();
         } else {
+
+            PDDocument resizedDoc;
             BigDecimal scalingFactor = calculateScalingFactor(document, size);
-            log.info("PDF is NOT correct size, scaling with a factor of {}", scalingFactor.doubleValue());
-            PDDocument resizedDoc = scaleDownDocumentToPageSize(document, scalingFactor, size);
+
+            boolean shouldUpSize = scalingFactor == new BigDecimal(-1);
+
+            if (shouldUpSize) {
+                log.info("PDF is NOT correct size, scaling up page but not content");
+                resizedDoc = scaleUpPageSize(document, size);
+            } else {
+                log.info("PDF is NOT correct size, scaling down with a factor of {}", scalingFactor.doubleValue());
+                resizedDoc = scaleDownDocumentToPageSize(document, scalingFactor, size);
+            }
             return Optional.of(resizedDoc);
         }
     }
@@ -74,6 +84,7 @@ public class PdfHelper {
 
     public BigDecimal calculateScalingFactor(PDDocument document, PDRectangle size) {
 
+        final BigDecimal zero = new BigDecimal(0);
         BigDecimal maxHeightScaling = new BigDecimal(0);
         BigDecimal maxWidthScaling = new BigDecimal(0);
         float heightOverage;
@@ -110,6 +121,11 @@ public class PdfHelper {
             log.debug("max width scaling = " + maxWidthScaling);
         }
 
+        if (maxHeightScaling.compareTo(zero) < 0
+                || maxWidthScaling.compareTo(zero) < 0) {
+            return new BigDecimal(-1);
+        }
+
         BigDecimal scalingFactor = maxHeightScaling.compareTo(maxWidthScaling) > 0 ? maxHeightScaling : maxWidthScaling;
 
         return new BigDecimal(1).subtract(scalingFactor).setScale(4, RoundingMode.HALF_EVEN);
@@ -119,6 +135,8 @@ public class PdfHelper {
         if (overage > 0) {
             BigDecimal scaleFactor = new BigDecimal(overage / pageAxisDimension);
             maxScaleFactor = scaleFactor.compareTo(maxScaleFactor) > 0 ? scaleFactor : maxScaleFactor;
+        } else if (overage < 0) {
+            maxScaleFactor = new BigDecimal(-1);
         }
         return  maxScaleFactor;
     }

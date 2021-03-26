@@ -2,9 +2,6 @@ package uk.gov.hmcts.reform.sscs.helper;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
@@ -112,6 +109,26 @@ public class PdfHelperTest {
     }
 
     @Test
+    public void returnCorrectMaxScalingFactorForUndersizedPortraitWidth() {
+        PDRectangle pageSize = PDRectangle.A4;
+        PDDocument document = new PDDocument();
+        document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() - 100, pageSize.getHeight())));
+
+        BigDecimal result = pdfHelper.calculateScalingFactor(document, pageSize);
+        assertEquals(new BigDecimal(-1), result);
+    }
+
+    @Test
+    public void returnCorrectMaxScalingFactorForUndersizedPortraitHeight() {
+        PDRectangle pageSize = PDRectangle.A4;
+        PDDocument document = new PDDocument();
+        document.addPage(new PDPage(new PDRectangle(pageSize.getWidth(), pageSize.getHeight() - 100)));
+
+        BigDecimal result = pdfHelper.calculateScalingFactor(document, pageSize);
+        assertEquals(new BigDecimal(-1), result);
+    }
+
+    @Test
     public void returnCorrectMaxScalingFactorForOversizedPortraitWidthExtraLarge() {
         PDRectangle pageSize = PDRectangle.A4;
         PDDocument document = new PDDocument();
@@ -177,14 +194,6 @@ public class PdfHelperTest {
 
         PDDocument result = pdfHelper.scaleUpPageSize(document, pageSize);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        result.save(baos);
-
-        FileOutputStream fos = new FileOutputStream(new File("upsized.pdf"));
-
-        baos.writeTo(fos);
-        fos.close();
-
         PDRectangle mediaBox = result.getPage(0).getMediaBox();
 
         assertTrue(pageSize.getHeight() == mediaBox.getHeight());
@@ -208,7 +217,7 @@ public class PdfHelperTest {
     }
 
     @Test
-    public void doesResizeDocumentWhichDoesNeedResizing() throws Exception {
+    public void doesResizeDownDocumentWhichDoesNeedResizing() throws Exception {
 
         byte[] pdfBytes = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("another-test.pdf"));
 
@@ -221,6 +230,22 @@ public class PdfHelperTest {
 
         assertTrue(pageSize.getHeight() >= mediaBox.getHeight());
         assertTrue(pageSize.getWidth() >= mediaBox.getWidth());
+    }
+
+    @Test
+    public void doesResizeUpDocumentWhichDoesNeedResizing() throws Exception {
+
+        byte[] pdfBytes = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("another-test.pdf"));
+
+        PDDocument document = PDDocument.load(pdfBytes);
+        PDRectangle pageSize = PDRectangle.A2;
+        Optional<PDDocument> result = pdfHelper.scaleToPageSize(document, pageSize);
+
+        assertTrue(result.isPresent());
+        PDRectangle mediaBox = result.get().getPage(0).getMediaBox();
+
+        assertTrue(pageSize.getHeight() <= mediaBox.getHeight());
+        assertTrue(pageSize.getWidth() <= mediaBox.getWidth());
     }
 
     @Test
