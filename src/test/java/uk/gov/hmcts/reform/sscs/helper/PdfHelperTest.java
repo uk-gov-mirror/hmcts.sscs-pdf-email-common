@@ -2,6 +2,9 @@ package uk.gov.hmcts.reform.sscs.helper;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
@@ -23,7 +26,7 @@ public class PdfHelperTest {
         PDDocument document = new PDDocument();
         document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() + 100, pageSize.getHeight() + 100)));
 
-        boolean result = pdfHelper.isDocumentWithinSize(document, pageSize);
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
         assertFalse(result);
     }
 
@@ -33,7 +36,28 @@ public class PdfHelperTest {
         PDDocument document = new PDDocument();
         document.addPage(new PDPage(new PDRectangle(pageSize.getHeight() + 100, pageSize.getWidth() + 100)));
 
-        boolean result = pdfHelper.isDocumentWithinSize(document, pageSize);
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
+        assertFalse(result);
+    }
+
+    @Test
+    public void returnFalseWhenPdfHasPageLowerThanAllowedSizePortrait() {
+
+        PDRectangle pageSize = PDRectangle.A4;
+        PDDocument document = new PDDocument();
+        document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() - 100, pageSize.getHeight() - 100)));
+
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
+        assertFalse(result);
+    }
+
+    @Test
+    public void returnFalseWhenPdfHasPageLowerThanAllowedSizeLandscape() {
+        PDRectangle pageSize = PDRectangle.A4;
+        PDDocument document = new PDDocument();
+        document.addPage(new PDPage(new PDRectangle(pageSize.getHeight() - 100, pageSize.getWidth() - 100)));
+
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
         assertFalse(result);
     }
 
@@ -41,9 +65,9 @@ public class PdfHelperTest {
     public void returnTrueWhenPdfHasNoPagesGreaterThanAllowedSizePortrait() {
         PDRectangle pageSize = PDRectangle.A4;
         PDDocument document = new PDDocument();
-        document.addPage(new PDPage(new PDRectangle(pageSize.getWidth(), pageSize.getHeight())));
+        document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() + 5, pageSize.getHeight())));
 
-        boolean result = pdfHelper.isDocumentWithinSize(document, pageSize);
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
         assertTrue(result);
     }
 
@@ -51,9 +75,29 @@ public class PdfHelperTest {
     public void returnTrueWhenPdfHasNoPagesGreaterThanAllowedSizeLandscape() {
         PDRectangle pageSize = PDRectangle.A4;
         PDDocument document = new PDDocument();
-        document.addPage(new PDPage(new PDRectangle(pageSize.getHeight(), pageSize.getWidth())));
+        document.addPage(new PDPage(new PDRectangle(pageSize.getHeight() + 5, pageSize.getWidth())));
 
-        boolean result = pdfHelper.isDocumentWithinSize(document, pageSize);
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
+        assertTrue(result);
+    }
+
+    @Test
+    public void returnTrueWhenPdfHasNoPagesLowerThanAllowedSizePortrait() {
+        PDRectangle pageSize = PDRectangle.A4;
+        PDDocument document = new PDDocument();
+        document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() - 5, pageSize.getHeight())));
+
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
+        assertTrue(result);
+    }
+
+    @Test
+    public void returnTrueWhenPdfHasNoPagesLowerThanAllowedSizeLandscape() {
+        PDRectangle pageSize = PDRectangle.A4;
+        PDDocument document = new PDDocument();
+        document.addPage(new PDPage(new PDRectangle(pageSize.getHeight() - 5, pageSize.getWidth())));
+
+        boolean result = pdfHelper.isDocumentWithinSizeTolerance(document, pageSize);
         assertTrue(result);
     }
 
@@ -121,6 +165,46 @@ public class PdfHelperTest {
 
         assertTrue(pageSize.getHeight() >= mediaBox.getHeight());
         assertTrue(pageSize.getWidth() >= mediaBox.getWidth());
+    }
+
+    @Test
+    public void scalePageUpCorrectlyPortrait() throws Exception {
+
+        byte[] pdfBytes = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("another-test.pdf"));
+
+        PDRectangle pageSize = PDRectangle.A2;
+        PDDocument document = PDDocument.load(pdfBytes);
+
+        PDDocument result = pdfHelper.scaleUpPageSize(document, pageSize);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        result.save(baos);
+
+        FileOutputStream fos = new FileOutputStream(new File("upsized.pdf"));
+
+        baos.writeTo(fos);
+        fos.close();
+
+        PDRectangle mediaBox = result.getPage(0).getMediaBox();
+
+        assertTrue(pageSize.getHeight() == mediaBox.getHeight());
+        assertTrue(pageSize.getWidth() == mediaBox.getWidth());
+    }
+
+    @Test
+    public void scalePageUpCorrectlyLandscape() throws Exception {
+
+        byte[] pdfBytes = IOUtils.toByteArray(getClass().getClassLoader().getResourceAsStream("A3 Landscape.pdf"));
+
+        PDRectangle pageSize = PDRectangle.A2;
+        PDDocument document = PDDocument.load(pdfBytes);
+
+        PDDocument result = pdfHelper.scaleUpPageSize(document, pageSize);
+
+        PDRectangle mediaBox = result.getPage(0).getMediaBox();
+
+        assertTrue(pageSize.getHeight() == mediaBox.getWidth());
+        assertTrue(pageSize.getWidth() == mediaBox.getHeight());
     }
 
     @Test

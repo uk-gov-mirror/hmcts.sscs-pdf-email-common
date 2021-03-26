@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class PdfHelper {
 
-    float tolerenceFactor = 1.01f;
+    float tolerenceFactor = 0.01f;
 
     public Optional<PDDocument> scaleToA4(PDDocument document) throws Exception {
         return scaleToPageSize(document, PDRectangle.A4);
@@ -25,7 +25,7 @@ public class PdfHelper {
 
     public Optional<PDDocument> scaleToPageSize(PDDocument document, PDRectangle size) throws Exception {
 
-        boolean isWithinPageSize = isDocumentWithinSize(document, size);
+        boolean isWithinPageSize = isDocumentWithinSizeTolerance(document, size);
 
         if (isWithinPageSize) {
             log.info("PDF is correct size");
@@ -38,24 +38,33 @@ public class PdfHelper {
         }
     }
 
-    public boolean isDocumentWithinSize(PDDocument document, PDRectangle size) {
+    public boolean isDocumentWithinSizeTolerance(PDDocument document, PDRectangle size) {
 
         for (PDPage page: document.getPages()) {
             float pageHeight = page.getCropBox().getHeight();
             float pageWidth = page.getCropBox().getWidth();
 
-            float limitHeight = size.getHeight() * tolerenceFactor;
-            float limitWidth = size.getWidth() * tolerenceFactor;
+            float upperLimitHeight = size.getHeight() * (1 + tolerenceFactor);
+            float lowerLimitHeight = size.getHeight() * (1 - tolerenceFactor);
 
-            log.debug("Pdf height {}, limit {}", pageHeight, limitHeight);
-            log.debug("Pdf width {}, limit {}", pageWidth, limitWidth);
+            float upperLimitWidth = size.getWidth() * (1 + tolerenceFactor);
+            float lowerLimitWidth = size.getWidth() * (1 - tolerenceFactor);
+
+            log.debug("Pdf height {}, upper limit {}, lower limit {}", pageHeight, upperLimitHeight, lowerLimitHeight);
+            log.debug("Pdf width {}, limit {}, lower limit {}", pageWidth, upperLimitWidth, lowerLimitWidth);
 
             if (pageHeight > pageWidth) {
-                if (pageHeight > limitHeight || pageWidth > limitWidth) {
+                if (pageHeight > upperLimitHeight
+                    || pageHeight < lowerLimitHeight
+                    || pageWidth > upperLimitWidth
+                    || pageWidth < lowerLimitWidth) {
                     return false;
                 }
             } else {
-                if (pageWidth > limitHeight || pageHeight > limitWidth) {
+                if (pageWidth > upperLimitHeight
+                        || pageWidth < lowerLimitHeight
+                        || pageHeight > upperLimitWidth
+                        || pageHeight < lowerLimitWidth) {
                     return false;
                 }
             }
@@ -124,6 +133,22 @@ public class PdfHelper {
                 page.setTrimBox(newSize);
                 page.setArtBox(newSize);
                 scaleContent(document, page, scaleDownFactor.floatValue());
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+        return document;
+    }
+
+    public PDDocument scaleUpPageSize(PDDocument document, PDRectangle size) {
+        try {
+            for (PDPage page : document.getPages()) {
+                PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getHeight(), size.getWidth());
+                page.setMediaBox(newSize);
+                page.setCropBox(newSize);
+                page.setBleedBox(newSize);
+                page.setTrimBox(newSize);
+                page.setArtBox(newSize);
             }
         } catch (Exception e) {
             throw e;
