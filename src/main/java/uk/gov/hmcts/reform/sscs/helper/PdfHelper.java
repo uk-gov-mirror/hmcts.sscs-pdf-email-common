@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -17,7 +16,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class PdfHelper {
 
-    float tolerenceFactor = 0.01f;
+    private static final float TOLERANCE_FACTOR = 0.01f;
+    private static final BigDecimal SCALE_UP = BigDecimal.ONE.negate();
+    private static final BigDecimal NO_CHANGE = BigDecimal.ZERO;
 
     public Optional<PDDocument> scaleToA4(PDDocument document) throws Exception {
         return scaleToPageSize(document, PDRectangle.A4);
@@ -30,148 +31,115 @@ public class PdfHelper {
         if (isWithinPageSize) {
             log.info("PDF is correct size");
             return Optional.empty();
-        } else {
-
-            PDDocument resizedDoc;
-            BigDecimal scalingFactor = calculateScalingFactor(document, size);
-
-            boolean shouldUpSize = scalingFactor == new BigDecimal(-1);
-
-            if (shouldUpSize) {
-                log.info("PDF is NOT correct size, scaling up page but not content");
-                resizedDoc = scaleUpPageSize(document, size);
-            } else {
-                log.info("PDF is NOT correct size, scaling down with a factor of {}", scalingFactor.doubleValue());
-                resizedDoc = scaleDownDocumentToPageSize(document, scalingFactor, size);
-            }
-            return Optional.of(resizedDoc);
         }
+        for (PDPage page : document.getPages()) {
+            BigDecimal scalingFactor = scalingFactor(page, size);
+            if (!scalingFactor.equals(NO_CHANGE)) {
+                scalePageToSize(page, size);
+
+                if (!scalingFactor.equals(SCALE_UP)) {
+                    scaleContent(document, page, scalingFactor.floatValue());
+                }
+            }
+        }
+        return Optional.of(document);
     }
 
-    public boolean isDocumentWithinSizeTolerance(PDDocument document, PDRectangle size) {
+    private boolean isPageCorrectSize(PDPage page, PDRectangle size) {
+        float pageHeight = page.getCropBox().getHeight();
+        float pageWidth = page.getCropBox().getWidth();
 
-        for (PDPage page: document.getPages()) {
-            float pageHeight = page.getCropBox().getHeight();
-            float pageWidth = page.getCropBox().getWidth();
+        float upperLimitHeight = size.getHeight() * (1 + TOLERANCE_FACTOR);
+        float lowerLimitHeight = size.getHeight() * (1 - TOLERANCE_FACTOR);
 
-            float upperLimitHeight = size.getHeight() * (1 + tolerenceFactor);
-            float lowerLimitHeight = size.getHeight() * (1 - tolerenceFactor);
+        float upperLimitWidth = size.getWidth() * (1 + TOLERANCE_FACTOR);
+        float lowerLimitWidth = size.getWidth() * (1 - TOLERANCE_FACTOR);
 
-            float upperLimitWidth = size.getWidth() * (1 + tolerenceFactor);
-            float lowerLimitWidth = size.getWidth() * (1 - tolerenceFactor);
+        log.debug("Pdf height {}, upper limit {}, lower limit {}", pageHeight, upperLimitHeight, lowerLimitHeight);
+        log.debug("Pdf width {}, limit {}, lower limit {}", pageWidth, upperLimitWidth, lowerLimitWidth);
 
-            log.debug("Pdf height {}, upper limit {}, lower limit {}", pageHeight, upperLimitHeight, lowerLimitHeight);
-            log.debug("Pdf width {}, limit {}, lower limit {}", pageWidth, upperLimitWidth, lowerLimitWidth);
+        if (pageHeight > pageWidth) {
+            return !(pageHeight > upperLimitHeight)
+                    && !(pageHeight < lowerLimitHeight)
+                    && !(pageWidth > upperLimitWidth)
+                    && !(pageWidth < lowerLimitWidth);
+        }
+        return !(pageWidth > upperLimitHeight)
+                && !(pageWidth < lowerLimitHeight)
+                && !(pageHeight > upperLimitWidth)
+                && !(pageHeight < lowerLimitWidth);
 
-            if (pageHeight > pageWidth) {
-                if (pageHeight > upperLimitHeight
-                    || pageHeight < lowerLimitHeight
-                    || pageWidth > upperLimitWidth
-                    || pageWidth < lowerLimitWidth) {
-                    return false;
-                }
-            } else {
-                if (pageWidth > upperLimitHeight
-                        || pageWidth < lowerLimitHeight
-                        || pageHeight > upperLimitWidth
-                        || pageHeight < lowerLimitWidth) {
-                    return false;
-                }
+    }
+
+    protected boolean isDocumentWithinSizeTolerance(PDDocument document, PDRectangle size) {
+        for (PDPage page : document.getPages()) {
+            boolean isCorrectSize = isPageCorrectSize(page, size);
+            if (!isCorrectSize) {
+                return false;
             }
         }
         return true;
     }
 
-    public BigDecimal calculateScalingFactor(PDDocument document, PDRectangle size) {
-
-        final BigDecimal zero = new BigDecimal(0);
-        BigDecimal maxHeightScaling = new BigDecimal(0);
-        BigDecimal maxWidthScaling = new BigDecimal(0);
-        float heightOverage;
-        float widthOverage;
-
-        for (PDPage page: document.getPages()) {
-            float pageHeight = page.getMediaBox().getHeight();
-            float pageWidth = page.getMediaBox().getWidth();
-            float sizeHeight;
-            float sizeWidth;
-
-            if (pageHeight > pageWidth) {
-                sizeHeight = size.getHeight();
-                sizeWidth = size.getWidth();
-            } else {
-                sizeHeight = size.getWidth();
-                sizeWidth = size.getHeight();
-            }
-
-            log.debug("A4 height limit = " + sizeHeight);
-            log.debug("A4 width limit = " + sizeWidth);
-
-            log.debug("Page Height = " + pageHeight);
-            log.debug("Page Width = " + pageWidth);
-
-            heightOverage = pageHeight - sizeHeight;
-            log.debug("height overage = " + heightOverage);
-            widthOverage = pageWidth - sizeWidth;
-            log.debug("width overage = " + widthOverage);
-
-            maxHeightScaling = maxScaleFactor(heightOverage, pageHeight, maxHeightScaling);
-            log.debug("max height scaling = " + maxHeightScaling);
-            maxWidthScaling = maxScaleFactor(widthOverage, pageWidth, maxWidthScaling);
-            log.debug("max width scaling = " + maxWidthScaling);
+    protected BigDecimal scalingFactor(PDPage page, PDRectangle size) {
+        if (isPageCorrectSize(page, size)) {
+            return NO_CHANGE;
         }
 
-        if (maxHeightScaling.compareTo(zero) < 0
-                || maxWidthScaling.compareTo(zero) < 0) {
-            return new BigDecimal(-1);
+        final float pageHeight = page.getMediaBox().getHeight();
+        final float pageWidth = page.getMediaBox().getWidth();
+        float sizeHeight = size.getHeight();
+        float sizeWidth = size.getWidth();
+
+        if (pageWidth > pageHeight) {
+            sizeHeight = size.getWidth();
+            sizeWidth = size.getHeight();
+        }
+
+        log.debug("A4 height limit = " + sizeHeight);
+        log.debug("A4 width limit = " + sizeWidth);
+
+        log.debug("Page Height = " + pageHeight);
+        log.debug("Page Width = " + pageWidth);
+
+        float heightOverage = pageHeight - sizeHeight;
+        log.debug("height overage = " + heightOverage);
+        float widthOverage = pageWidth - sizeWidth;
+        log.debug("width overage = " + widthOverage);
+
+        BigDecimal maxHeightScaling = maxScaleFactor(heightOverage, pageHeight);
+        log.debug("max height scaling = " + maxHeightScaling);
+        BigDecimal maxWidthScaling = maxScaleFactor(widthOverage, pageWidth);
+        log.debug("max width scaling = " + maxWidthScaling);
+
+        if (maxHeightScaling.compareTo(NO_CHANGE) < 0
+                || maxWidthScaling.compareTo(NO_CHANGE) < 0) {
+            return SCALE_UP;
         }
 
         BigDecimal scalingFactor = maxHeightScaling.compareTo(maxWidthScaling) > 0 ? maxHeightScaling : maxWidthScaling;
 
-        return new BigDecimal(1).subtract(scalingFactor).setScale(4, RoundingMode.HALF_EVEN);
+        return BigDecimal.ONE.subtract(scalingFactor).setScale(4, RoundingMode.HALF_EVEN);
     }
 
-    private BigDecimal maxScaleFactor(float overage, float pageAxisDimension, BigDecimal maxScaleFactor) {
+    private BigDecimal maxScaleFactor(float overage, float pageAxisDimension) {
+        BigDecimal maxScaleFactor = NO_CHANGE;
         if (overage > 0) {
             BigDecimal scaleFactor = new BigDecimal(overage / pageAxisDimension);
             maxScaleFactor = scaleFactor.compareTo(maxScaleFactor) > 0 ? scaleFactor : maxScaleFactor;
         } else if (overage < 0) {
-            maxScaleFactor = new BigDecimal(-1);
+            maxScaleFactor = SCALE_UP;
         }
-        return  maxScaleFactor;
+        return maxScaleFactor;
     }
 
-    public PDDocument scaleDownDocumentToPageSize(PDDocument document, BigDecimal scaleDownFactor, PDRectangle size) throws Exception {
-        try {
-            for (PDPage page : document.getPages()) {
-                PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getHeight(), size.getWidth());
-                page.setMediaBox(newSize);
-                page.setCropBox(newSize);
-                page.setBleedBox(newSize);
-                page.setTrimBox(newSize);
-                page.setArtBox(newSize);
-                scaleContent(document, page, scaleDownFactor.floatValue());
-            }
-        } catch (Exception e) {
-            throw e;
-        }
-        return document;
-    }
-
-    public PDDocument scaleUpPageSize(PDDocument document, PDRectangle size) {
-        try {
-            for (PDPage page : document.getPages()) {
-                PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getHeight(), size.getWidth());
-                page.setMediaBox(newSize);
-                page.setCropBox(newSize);
-                page.setBleedBox(newSize);
-                page.setTrimBox(newSize);
-                page.setArtBox(newSize);
-            }
-        } catch (Exception e) {
-            throw e;
-        }
-        return document;
+    protected void scalePageToSize(PDPage page, PDRectangle size) {
+        PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getHeight(), size.getWidth());
+        page.setMediaBox(newSize);
+        page.setCropBox(newSize);
+        page.setBleedBox(newSize);
+        page.setTrimBox(newSize);
+        page.setArtBox(newSize);
     }
 
     private void scaleContent(PDDocument document, PDPage page, float percentage) throws IOException {
