@@ -23,4 +23,6 @@ public class PdfWrapper {
 
     private String repFullName;
 
+    private String englishBenefitName;
+
 }
