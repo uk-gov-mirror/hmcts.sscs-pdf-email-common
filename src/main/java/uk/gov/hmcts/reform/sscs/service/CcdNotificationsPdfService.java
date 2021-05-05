@@ -182,7 +182,7 @@ public class CcdNotificationsPdfService {
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens, String description) {
         try {
-            return ccdService.updateCase(caseData, caseId, eventId, "Notification sent", description, idamTokens);
+            return ccdService.updateCaseWithoutRetry(caseData, caseId, eventId, "Notification sent", description, idamTokens);
         } catch (CcdException ccdEx) {
             log.error("Failed to update ccd case but carrying on [" + caseId + "] ["
                     + caseData.getCaseReference() + "] with event [" + eventId + "]", ccdEx);
