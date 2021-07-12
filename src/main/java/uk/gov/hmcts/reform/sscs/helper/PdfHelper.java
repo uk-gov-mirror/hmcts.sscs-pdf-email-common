@@ -113,7 +113,7 @@ public class PdfHelper {
         log.debug("max width scaling = " + maxWidthScaling);
 
         if (maxHeightScaling.compareTo(NO_CHANGE) < 0
-                || maxWidthScaling.compareTo(NO_CHANGE) < 0) {
+                && maxWidthScaling.compareTo(NO_CHANGE) < 0) {
             return SCALE_UP;
         }
 
@@ -134,7 +134,7 @@ public class PdfHelper {
     }
 
     protected void scalePageToSize(PDPage page, PDRectangle size) {
-        PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getHeight(), size.getWidth());
+        PDRectangle newSize = page.getMediaBox().getHeight() > page.getMediaBox().getWidth() ? size : new PDRectangle(size.getWidth(), size.getHeight());
         page.setMediaBox(newSize);
         page.setCropBox(newSize);
         page.setBleedBox(newSize);

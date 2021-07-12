@@ -128,7 +128,7 @@ public class PdfHelperTest {
             document.addPage(new PDPage(new PDRectangle(pageSize.getWidth() - 100, pageSize.getHeight())));
 
             BigDecimal result = pdfHelper.scalingFactor(document.getPage(0), pageSize);
-            assertEquals(new BigDecimal(-1), result);
+            assertEquals(BigDecimal.ONE.setScale(2), result.setScale(2));
         }
     }
 
@@ -139,7 +139,7 @@ public class PdfHelperTest {
             document.addPage(new PDPage(new PDRectangle(pageSize.getWidth(), pageSize.getHeight() - 100)));
 
             BigDecimal result = pdfHelper.scalingFactor(document.getPage(0), pageSize);
-            assertEquals(BigDecimal.ONE.negate(), result);
+            assertEquals(BigDecimal.ONE.setScale(2), result.setScale(2));
         }
     }
 
@@ -180,8 +180,8 @@ public class PdfHelperTest {
             try (PDDocument newDocument = result.get()) {
                 PDRectangle mediaBox = newDocument.getPage(0).getMediaBox();
 
-                assertTrue(pageSize.getHeight() >= mediaBox.getWidth());
-                assertTrue(pageSize.getWidth() >= mediaBox.getHeight());
+                assertTrue(pageSize.getHeight() >= mediaBox.getHeight());
+                assertTrue(pageSize.getWidth() >= mediaBox.getWidth());
             }
         }
     }
@@ -240,8 +240,8 @@ public class PdfHelperTest {
             try (PDDocument newDocument = result.get()) {
                 PDRectangle mediaBox = newDocument.getPage(0).getMediaBox();
 
-                assertEquals(0.0, pageSize.getHeight(), mediaBox.getWidth());
-                assertEquals(0.0, pageSize.getWidth(), mediaBox.getHeight());
+                assertEquals(0.0, pageSize.getHeight(), mediaBox.getHeight());
+                assertEquals(0.0, pageSize.getWidth(), mediaBox.getWidth());
             }
         }
     }
