@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,6 +29,7 @@ public class PdfStoreService {
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
     private final boolean secureDocStoreEnabled;
     private IdamService idamService;
+    static final String DM_STORE_USER_ID = "sscs";
 
     @Autowired
     public PdfStoreService(EvidenceManagementService evidenceManagementService,
@@ -51,6 +53,7 @@ public class PdfStoreService {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
                 .contentType(APPLICATION_PDF).build();
         try {
+            log.info("Storing file {} of type {} into docstore", fileName, documentType);
             uk.gov.hmcts.reform.document.domain.UploadResponse upload = evidenceManagementService.upload(singletonList(file), "sscs");
             String location = upload.getEmbedded().getDocuments().get(0).links.self.href;
 
@@ -75,6 +78,7 @@ public class PdfStoreService {
         ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(content).name(fileName)
                 .contentType(APPLICATION_PDF).build();
         try {
+            log.info("Storing file {} of type {} into secure docstore", fileName, documentType);
             IdamTokens idamTokens = idamService.getIdamTokens();
             UploadResponse upload = evidenceManagementSecureDocStoreService.upload(singletonList(file), idamTokens);
             String location = upload.getDocuments().get(0).links.self.href;
@@ -93,6 +97,16 @@ public class PdfStoreService {
         } catch (RestClientException e) {
             log.error("Failed to store pdf document but carrying on [" + fileName + "]", e);
             return emptyList();
+        }
+    }
+
+    public byte[] download(String href) {
+        if (secureDocStoreEnabled) {
+            log.info("Downloading file {} from secure docstore", href);
+            return evidenceManagementSecureDocStoreService.download(href, idamService.getIdamTokens());
+        } else {
+            log.info("Downloading file {} from docstore", href);
+            return evidenceManagementService.download(URI.create(href), DM_STORE_USER_ID);
         }
     }
 }
