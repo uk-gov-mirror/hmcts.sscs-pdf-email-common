@@ -102,9 +102,9 @@ public class CcdPdfService {
         }
         SscsDocumentDetails pdfDocDetails = pdfDocuments.get(0).getValue();
 
-        String dateAdded = null;
+        final String dateAdded;
         if (pdfDocDetails.getDocumentDateAdded() != null) {
-            dateAdded = LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME);
+            dateAdded = getDocumentDateAdded(pdfDocDetails);
         } else {
             dateAdded = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
         }
@@ -118,6 +118,14 @@ public class CcdPdfService {
                         .build())
                 .build();
         return Collections.singletonList(scannedDoc);
+    }
+
+    private String getDocumentDateAdded(SscsDocumentDetails pdfDocDetails) {
+        if (LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).isEqual(LocalDate.now())) {
+            return LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        } else {
+            return LocalDate.parse(pdfDocDetails.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME);
+        }
     }
 
     private SscsCaseDetails updateCaseInCcd(SscsCaseData caseData, Long caseId, String eventId, IdamTokens idamTokens,

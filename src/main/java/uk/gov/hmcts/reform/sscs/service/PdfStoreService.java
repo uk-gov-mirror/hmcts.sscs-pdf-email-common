@@ -28,7 +28,7 @@ public class PdfStoreService {
     private final EvidenceManagementService evidenceManagementService;
     private final EvidenceManagementSecureDocStoreService evidenceManagementSecureDocStoreService;
     private final boolean secureDocStoreEnabled;
-    private IdamService idamService;
+    private final IdamService idamService;
     static final String DM_STORE_USER_ID = "sscs";
 
     @Autowired

@@ -2,6 +2,9 @@ package uk.gov.hmcts.reform.sscs.service;
 
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,7 +18,6 @@ import static uk.gov.hmcts.reform.sscs.ccd.domain.EventType.UPLOAD_DOCUMENT;
 import static uk.gov.hmcts.reform.sscs.ccd.domain.YesNo.NO;
 import static uk.gov.hmcts.reform.sscs.ccd.util.CaseDataUtils.buildCaseData;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public class CcdPdfServiceTest {
     @Mock
     CcdService ccdService;
 
-    private SscsCaseData caseData = buildCaseData();
+    private final SscsCaseData caseData = buildCaseData();
 
     @Before
     public void setup() {
@@ -116,8 +118,10 @@ public class CcdPdfServiceTest {
             Optional<ScannedDocument> scannedDocument = caseDataCaptor.getValue().getScannedDocuments().stream()
                 .filter(scannedDoc -> expectedFilename.equals(scannedDoc.getValue().getFileName()))
                 .findFirst();
-            scannedDocument.ifPresent(document ->
-                assertThat(document, is(buildExpectedScannedDocument(newStoredSscsDocuments))));
+            assertThat(scannedDocument.isPresent(), is(true));
+            assertThat(LocalDateTime.parse(scannedDocument.get().getValue().getScannedDate()), greaterThan(LocalDateTime.now().minusSeconds(2)));
+            assertThat(LocalDateTime.parse(scannedDocument.get().getValue().getScannedDate()), lessThan(LocalDateTime.now().plusSeconds(2)));
+            assertThat(scannedDocument.get().getValue(), samePropertyValuesAs(buildExpectedScannedDocument(newStoredSscsDocuments).getValue(), "scannedDate"));
         }
     }
 
@@ -127,7 +131,7 @@ public class CcdPdfServiceTest {
             .value(ScannedDocumentDetails.builder()
                 .fileName(expectedDocValues.getDocumentFileName())
                 .url(expectedDocValues.getDocumentLink())
-                .scannedDate(LocalDate.parse(expectedDocValues.getDocumentDateAdded()).atStartOfDay().format(DateTimeFormatter.ISO_DATE_TIME))
+                .scannedDate(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
                 .type("other")
                 .build())
             .build();
