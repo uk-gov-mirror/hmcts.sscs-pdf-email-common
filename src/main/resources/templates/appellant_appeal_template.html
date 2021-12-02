@@ -223,7 +223,13 @@
     <dl class="govuk-check-your-answers">
         <div>
             <dt class="cya-question">Name</dt>
-            <dd class="cya-answer">{{ PdfWrapper.repFullName | default('Not provided') }}</dd>
+            <dd class="cya-answer">
+                {% if PdfWrapper.repFullName is defined and PdfWrapper.repFullName != "null null null" %}
+                {{ PdfWrapper.repFullName }}
+                {% else %}
+                Not provided
+                {% endif %}
+            </dd>
         </div>
 
         <div>
@@ -346,6 +352,36 @@
                 {% endif %}
 
             </dd>
+        </div>
+    </dl>
+
+    <!-- Your telephone, video or face to face hearing -->
+
+    <h2 class="heading-medium">Your telephone, video or face to face hearing</h2>
+    <dl class="govuk-check-your-answers">
+        <div>
+            <dt class="cya-question">Telephone</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeTelephone }}</dd>
+        </div>
+        {% if PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeTelephone == 'Yes' %}
+            <div>
+                <dt class="cya-question">Number</dt>
+                <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingSubtype.hearingTelephoneNumber }}</dd>
+            </div>
+        {% endif %}
+        <div>
+            <dt class="cya-question">Video</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeVideo }}</dd>
+        </div>
+        {% if PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeVideo == 'Yes' %}
+            <div>
+                <dt class="cya-question">E-mail address</dt>
+                <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingSubtype.hearingVideoEmail }}</dd>
+            </div>
+        {% endif %}
+        <div>
+            <dt class="cya-question">Face to face</dt>
+            <dd class="cya-answer">{{ PdfWrapper.sscsCaseData.appeal.hearingSubtype.wantsHearingTypeFaceToFace }}</dd>
         </div>
     </dl>
 
