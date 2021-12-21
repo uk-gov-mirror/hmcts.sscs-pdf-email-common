@@ -169,6 +169,11 @@ public class CcdNotificationsPdfService {
             reasonableAdjustmentsLetters.setJointParty(buildCorrespondenceList(correspondences, correspondenceList));
         }
 
+        if (OTHER_PARTY.equals(letterType)) {
+            List<Correspondence> correspondenceList = sscsCaseData.getReasonableAdjustmentsLetters() != null && sscsCaseData.getReasonableAdjustmentsLetters().getOtherParty() != null ? sscsCaseData.getReasonableAdjustmentsLetters().getOtherParty() : new ArrayList<>();
+            reasonableAdjustmentsLetters.setOtherParty(buildCorrespondenceList(correspondences, correspondenceList));
+        }
+
         return reasonableAdjustmentsLetters;
     }
 

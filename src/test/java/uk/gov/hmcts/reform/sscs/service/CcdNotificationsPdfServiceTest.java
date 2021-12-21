@@ -113,7 +113,7 @@ public class CcdNotificationsPdfServiceTest {
     }
 
     @Test
-    @Parameters({"APPELLANT", "REPRESENTATIVE", "APPOINTEE", "JOINT_PARTY"})
+    @Parameters({"APPELLANT", "REPRESENTATIVE", "APPOINTEE", "JOINT_PARTY", "OTHER_PARTY"})
     public void givenAReasonableAdjustmentPdfForALetterType_thenCreateReasonableAdjustmentsCorrespondenceIntoCcdForRelevantParty(LetterType letterType) {
         byte[] bytes = "String".getBytes();
         Pdf pdf = new Pdf(bytes, "adocument");
@@ -179,7 +179,7 @@ public class CcdNotificationsPdfServiceTest {
     }
 
     @Test
-    @Parameters({"APPELLANT", "REPRESENTATIVE", "APPOINTEE", "JOINT_PARTY"})
+    @Parameters({"APPELLANT", "REPRESENTATIVE", "APPOINTEE", "JOINT_PARTY", "OTHER_PARTY"})
     public void givenAReasonableAdjustmentBytesForALetterType_thenCreateReasonableAdjustmentsCorrespondenceIntoCcdForRelevantParty(LetterType letterType) {
         byte[] bytes = "String".getBytes();
         Long caseId = Long.valueOf(caseData.getCcdCaseId());
@@ -250,6 +250,8 @@ public class CcdNotificationsPdfServiceTest {
             return reasonableAdjustmentsLetters.getRepresentative();
         } else if (LetterType.JOINT_PARTY.equals(letterType)) {
             return reasonableAdjustmentsLetters.getJointParty();
+        } else if (LetterType.OTHER_PARTY.equals(letterType)) {
+            return reasonableAdjustmentsLetters.getOtherParty();
         }
         return null;
     }
