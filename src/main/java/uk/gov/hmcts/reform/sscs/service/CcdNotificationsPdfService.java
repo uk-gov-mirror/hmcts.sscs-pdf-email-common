@@ -39,6 +39,8 @@ public class CcdNotificationsPdfService {
     @Autowired
     private IdamService idamService;
 
+    private static final String DEFAULT_SENDER_TYPE = "Gov Notify";
+
 
     public SscsCaseData mergeCorrespondenceIntoCcd(SscsCaseData sscsCaseData, Correspondence correspondence) {
         Map<String, Object> placeholders = new HashMap<>();
@@ -62,7 +64,7 @@ public class CcdNotificationsPdfService {
                 correspondence.toBuilder().value(correspondence.getValue().toBuilder()
                         .documentLink(doc.getValue().getDocumentLink())
                         .build()).build()
-        ).collect(Collectors.toList());
+        ).toList();
 
         List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
         List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
@@ -78,13 +80,17 @@ public class CcdNotificationsPdfService {
     }
 
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
+        return mergeLetterCorrespondenceIntoCcd(pdf, ccdCaseId, correspondence, DEFAULT_SENDER_TYPE);
+    }
+
+    public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence, String senderType) {
         String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
         List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
         final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
                 correspondence.toBuilder().value(correspondence.getValue().toBuilder()
                         .documentLink(doc.getValue().getDocumentLink())
                         .build()).build()
-        ).collect(Collectors.toList());
+        ).toList();
 
         IdamTokens idamTokens = idamService.getIdamTokens();
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
@@ -96,8 +102,9 @@ public class CcdNotificationsPdfService {
         allCorrespondence.sort(Comparator.reverseOrder());
         sscsCaseData.setCorrespondence(allCorrespondence);
 
+        String description = String.format("Notification sent via %s", senderType);
         SscsCaseDetails caseDetails = updateCaseInCcd(sscsCaseData, Long.parseLong(sscsCaseData.getCcdCaseId()), EventType.NOTIFICATION_SENT.getCcdType(),
-                idamTokens, "Notification sent via Gov Notify");
+                idamTokens, description);
 
         return caseDetails.getData();
     }
