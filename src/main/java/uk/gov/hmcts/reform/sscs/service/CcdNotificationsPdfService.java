@@ -61,6 +61,8 @@ public class CcdNotificationsPdfService {
 
     private final IdamService idamService;
 
+    private static final String DEFAULT_SENDER_TYPE = "Gov Notify";
+
 
     public SscsCaseData mergeCorrespondenceIntoCcd(SscsCaseData sscsCaseData, Correspondence correspondence) {
         Map<String, Object> placeholders = new HashMap<>();
