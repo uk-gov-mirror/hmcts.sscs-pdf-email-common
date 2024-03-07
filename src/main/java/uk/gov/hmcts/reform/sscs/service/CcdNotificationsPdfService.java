@@ -87,19 +87,12 @@ public class CcdNotificationsPdfService {
         }
     }
 
-
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
         return mergeLetterCorrespondenceIntoCcd(pdf, ccdCaseId, correspondence, DEFAULT_SENDER_TYPE);
     }
 
     public SscsCaseData mergeLetterCorrespondenceIntoCcd(byte[] pdf, Long ccdCaseId, Correspondence correspondence, String senderType) {
-        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
-        final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
-                correspondence.toBuilder().value(correspondence.getValue().toBuilder()
-                        .documentLink(doc.getValue().getDocumentLink())
-                        .build()).build()
-        ).toList();
+        final List<Correspondence> correspondences = getCorrespondences(pdf, correspondence);
 
         IdamTokens idamTokens = idamService.getIdamTokens();
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
@@ -116,6 +109,36 @@ public class CcdNotificationsPdfService {
                 idamTokens, description);
 
         return caseDetails.getData();
+    }
+
+    public void mergeLetterCorrespondenceIntoCcdV2(byte[] pdf, Long ccdCaseId, Correspondence correspondence) {
+        mergeLetterCorrespondenceIntoCcdV2(pdf, ccdCaseId, correspondence, DEFAULT_SENDER_TYPE);
+    }
+
+    public void mergeLetterCorrespondenceIntoCcdV2(byte[] pdf, Long ccdCaseId, Correspondence correspondence, String senderType) {
+        final List<Correspondence> correspondences = getCorrespondences(pdf, correspondence);
+
+        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> {
+            List<Correspondence> existingCorrespondence = sscsCaseData.getCorrespondence() == null ? new ArrayList<>() : sscsCaseData.getCorrespondence();
+            List<Correspondence> allCorrespondence = new ArrayList<>(existingCorrespondence);
+            allCorrespondence.addAll(correspondences);
+            allCorrespondence.sort(Comparator.reverseOrder());
+            sscsCaseData.setCorrespondence(allCorrespondence);
+        };
+
+        String description = String.format("Notification sent via %s", senderType);
+        log.info("Updating ccd case using v2 for {} with event {}", ccdCaseId, EventType.NOTIFICATION_SENT.getCcdType());
+        try {
+            updateCcdCaseService.updateCaseV2(ccdCaseId,
+                    EventType.NOTIFICATION_SENT.getCcdType(),
+                    "Notification sent",
+                    description,
+                    idamService.getIdamTokens(),
+                    caseDataConsumer);
+        } catch (CcdException ccdEx) {
+            log.error("Failed to update ccd case using v2 but carrying on [" + ccdCaseId + "] ["
+                    + ccdCaseId + "] with event [" + EventType.NOTIFICATION_SENT.getCcdType() + "]", ccdEx);
+        }
     }
 
     public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(List<Pdf> pdfs, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
@@ -135,23 +158,12 @@ public class CcdNotificationsPdfService {
 
         return mergeReasonableAdjustmentsCorrespondenceIntoCcd(letterDocument, ccdCaseId, correspondence, letterType);
     }
-
     public SscsCaseData mergeReasonableAdjustmentsCorrespondenceIntoCcd(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
-        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
-
-        List<SscsDocument> pdfDocuments = pdfStoreService.store(letterDocument, filename, correspondence.getValue().getCorrespondenceType().name());
-
-        final List<Correspondence> correspondences = pdfDocuments.stream().map(doc ->
-                correspondence.toBuilder().value(correspondence.getValue().toBuilder()
-                        .documentLink(doc.getValue().getDocumentLink())
-                        .build()).build()
-        ).collect(Collectors.toList());
-
         IdamTokens idamTokens = idamService.getIdamTokens();
         final SscsCaseDetails sscsCaseDetails = ccdService.getByCaseId(ccdCaseId, idamTokens);
         final SscsCaseData sscsCaseData = sscsCaseDetails.getData();
 
-        sscsCaseData.setReasonableAdjustmentsLetters(buildCorrespondenceByParty(sscsCaseData, correspondences, letterType));
+        sscsCaseData.setReasonableAdjustmentsLetters(buildCorrespondenceByParty(sscsCaseData, getCorrespondences(letterDocument, correspondence), letterType));
         sscsCaseData.updateReasonableAdjustmentsOutstanding();
 
         log.info("Creating a reasonable adjustment for {}", ccdCaseId);
@@ -160,6 +172,36 @@ public class CcdNotificationsPdfService {
                 idamTokens, "Stopped for reasonable adjustment to be sent");
 
         return caseDetails.getData();
+    }
+
+    public void mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(List<Pdf> pdfs, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
+        byte[] letterDocument = getMergedDocument(pdfs, ccdCaseId);
+
+        mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(letterDocument, ccdCaseId, correspondence, letterType);
+    }
+
+    public void mergeReasonableAdjustmentsCorrespondenceIntoCcdV2(byte[] letterDocument, Long ccdCaseId, Correspondence correspondence, LetterType letterType) {
+        List<Correspondence> correspondenceList = getCorrespondences(letterDocument, correspondence);
+
+        Consumer<SscsCaseData> caseDataConsumer = sscsCaseData -> {
+            sscsCaseData.setReasonableAdjustmentsLetters(
+                    buildCorrespondenceByParty(sscsCaseData, correspondenceList, letterType));
+            sscsCaseData.updateReasonableAdjustmentsOutstanding();
+        };
+
+        log.info("Creating a reasonable adjustment using v2 for {} with event {}", ccdCaseId, EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType());
+        try {
+            updateCcdCaseService.updateCaseV2(
+                    ccdCaseId,
+                    EventType.STOP_BULK_PRINT_FOR_REASONABLE_ADJUSTMENT.getCcdType(),
+                    "Stop bulk print",
+                    "Stopped for reasonable adjustment to be sent",
+                    idamService.getIdamTokens(),
+                    caseDataConsumer);
+        } catch (CcdException ccdEx) {
+            log.error("Failed to update ccd case using v2 but carrying on [" + ccdCaseId + "] ["
+                    + ccdCaseId + "] with event [" + EventType.NOTIFICATION_SENT.getCcdType() + "]", ccdEx);
+        }
     }
 
     private ReasonableAdjustmentsLetters buildCorrespondenceByParty(SscsCaseData sscsCaseData, List<Correspondence> correspondences, LetterType letterType) {
@@ -214,6 +256,33 @@ public class CcdNotificationsPdfService {
     private byte[] getSentEmailTemplate() throws IOException {
         InputStream in = getClass().getResourceAsStream("/templates/sent_notification.html");
         return IOUtils.toByteArray(in);
+    }
+
+    private byte[] getMergedDocument(List<Pdf> pdfs, Long ccdCaseId) {
+        PDFMergerUtility merger = new PDFMergerUtility();
+        for (Pdf pdf : pdfs) {
+            merger.addSource(new ByteArrayInputStream(pdf.getContent()));
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        merger.setDestinationStream(baos);
+        try {
+            merger.mergeDocuments(null);
+        } catch (IOException e) {
+            log.error("Failed to create pdf of letter for {}", ccdCaseId, e);
+        }
+
+        return baos.toByteArray();
+    }
+
+    @NotNull
+    private List<Correspondence> getCorrespondences(byte[] pdf, Correspondence correspondence) {
+        String filename = String.format("%s %s.pdf", correspondence.getValue().getEventType(), correspondence.getValue().getSentOn());
+        List<SscsDocument> pdfDocuments = pdfStoreService.store(pdf, filename, correspondence.getValue().getCorrespondenceType().name());
+        return pdfDocuments.stream().map(doc ->
+                correspondence.toBuilder().value(correspondence.getValue().toBuilder()
+                        .documentLink(doc.getValue().getDocumentLink())
+                        .build()).build()
+        ).toList();
     }
 
     @NotNull
